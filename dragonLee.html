@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>李龍龍行事曆 V5 - 管理增強版</title>
+  <title>李龍龍行事曆</title>
   <style>
     :root {
-      --bg-color: #F8F6F0; 
-      --card-bg: #FFFFFF; 
+      --bg-overlay: rgba(248, 246, 240, 0.88);
+      --card-bg: rgba(255, 255, 255, 0.92); 
       --text-main: #5C544D; 
       --text-light: #8E8781; 
       --accent-color: #E2D3C1; 
@@ -20,149 +20,210 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 50px; }
+
+    body {
+      background-image: url('bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-color: #F8F6F0;
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
     .container { max-width: 600px; margin: 0 auto; padding: 15px; }
 
-    /* 頂部倒數 */
-    .header-section { text-align: center; margin-bottom: 20px; padding: 20px; background: var(--card-bg); border-radius: 16px; box-shadow: 0 4px 15px rgba(92, 84, 77, 0.05); }
-    .countdown-display { font-size: 2.2rem; font-weight: bold; }
-    .countdown-display span { font-size: 1rem; color: var(--text-light); }
+    .logo-container { text-align: center; padding-top: 25px; margin-bottom: 15px; }
+    .main-logo { max-width: 100px; height: auto; }
 
-    /* 日曆區塊 */
-    .calendar-section { background: var(--card-bg); border-radius: 16px; padding: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(92, 84, 77, 0.05); }
-    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 8px; }
-    .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-    .calendar-day { min-height: 75px; border: 1px solid #FDFBF8; border-radius: 6px; padding: 4px 2px; cursor: pointer; display: flex; flex-direction: column; transition: 0.2s; }
-    .calendar-day-num { font-size: 0.8rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-bottom: 2px; }
+    .header-section, .calendar-section, .form-section, .record-card {
+      background: var(--card-bg) !important;
+      backdrop-filter: blur(8px);
+      border-radius: 18px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+
+    /* 倒數計時 */
+    .header-section { text-align: center; }
+    .countdown-display { font-size: 2.8rem; font-weight: bold; color: var(--text-main); }
+    .countdown-display span { font-size: 1.1rem; color: var(--text-light); margin-left: 5px; }
+
+    /* 日曆 */
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .calendar-header h2 { font-size: 1.1rem; font-weight: 600; }
+    .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 10px; }
+    .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .calendar-day { min-height: 80px; border: 1px solid rgba(226, 211, 193, 0.2); border-radius: 8px; padding: 5px 2px; cursor: pointer; display: flex; flex-direction: column; }
+    .calendar-day-num { font-size: 0.85rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
     .calendar-day.today .calendar-day-num { background: var(--today-color); color: #fff; border-radius: 50%; }
-    .calendar-day.selected { border: 1px solid var(--accent-dark); background: #FCFAF7; }
-    .event-bar { font-size: 9px; padding: 2px 4px; border-radius: 3px; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4A443F; border-left: 2px solid rgba(0,0,0,0.1); }
+    .calendar-day.selected { border: 2px solid var(--accent-dark); background: rgba(252, 250, 247, 1); }
+    .event-bar { font-size: 9px; padding: 2px 4px; border-radius: 4px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4A443F; border-left: 2px solid rgba(0,0,0,0.15); }
 
     /* 表單區塊 */
-    .form-section { background: var(--card-bg); padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(92, 84, 77, 0.05); margin-bottom: 20px; }
-    .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-weight: bold; }
-    .date-input { padding: 8px; border: 1px solid #EAE6DF; border-radius: 8px; font-size: 1rem; color: var(--text-main); }
-    .input-group { margin-bottom: 12px; }
-    .input-group label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 4px; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid #EAE6DF; border-radius: 8px; outline: none; font-size: 1rem; }
+    .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .date-input { padding: 8px 12px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; color: var(--text-main); outline: none; }
     
-    .color-picker { display: flex; gap: 10px; margin-top: 5px; }
-    .color-opt { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-    .color-opt.active { border-color: var(--text-main); transform: scale(1.1); }
+    .input-group { margin-bottom: 15px; }
+    .input-group label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+    .color-picker { display: flex; gap: 12px; }
+    .color-opt { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+    .color-opt.active { border-color: var(--text-main); transform: scale(1.15); }
 
-    .btn-submit { width: 100%; padding: 14px; background: var(--accent-color); color: white; border: none; border-radius: 8px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    /* 快捷按鈕 */
+    .quick-btns { display: flex; gap: 8px; margin-bottom: 10px; }
+    .btn-quick { padding: 6px 12px; background: #fff; border: 1px solid var(--accent-color); border-radius: 20px; color: var(--text-main); font-size: 0.85rem; cursor: pointer; }
+
+    .form-control { width: 100%; padding: 12px 15px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; outline: none; transition: 0.3s; }
+    .form-control:focus { border-color: var(--accent-dark); box-shadow: 0 0 5px rgba(201, 184, 163, 0.2); }
+    textarea.form-control { resize: none; }
+
+    .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-size: 1.1rem; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+    .btn-submit:active { transform: scale(0.98); background: var(--accent-dark); }
     .btn-cancel { width: 100%; padding: 10px; background: transparent; color: var(--text-light); border: none; cursor: pointer; font-size: 0.9rem; }
 
-    /* 歷史明細列表 */
-    .records-title { font-size: 1.1rem; margin: 25px 0 10px; color: var(--text-main); border-left: 4px solid var(--accent-color); padding-left: 10px; }
-    .record-card { background: #fff; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 6px solid var(--accent-color); box-shadow: 0 2px 6px rgba(0,0,0,0.03); position: relative; }
-    .record-info { flex: 1; }
-    .record-actions { display: flex; gap: 12px; margin-left: 15px; }
-    .action-btn { background: none; border: none; cursor: pointer; font-size: 0.85rem; padding: 5px; border-radius: 4px; }
-    .edit-btn { color: var(--edit-color); }
-    .del-btn { color: var(--danger-color); }
+    /* 紀錄列表 */
+    .records-title { font-size: 1.2rem; margin: 30px 0 15px; color: var(--text-main); text-align: center; letter-spacing: 1px; }
+    .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; align-items: flex-start; }
+    .note-text { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; font-style: italic; background: #FDFBF8; padding: 5px 8px; border-radius: 5px; display: inline-block; }
+    .record-actions { display: flex; gap: 15px; }
+    .action-btn { background: none; border: none; cursor: pointer; font-size: 0.9rem; padding: 5px; }
 
-    /* ★ 新增：明細最下方的總計欄位 ★ */
+    /* 費用總計欄位 */
     .total-summary-row {
-      background: var(--text-main);
-      color: #FFF;
-      padding: 18px 20px;
-      border-radius: 12px;
-      margin-top: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 12px rgba(92, 84, 77, 0.2);
+      background: #5C544D; color: #FFF; padding: 22px; border-radius: 16px; margin-top: 20px;
+      display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <header class="header-section">
-      <h1 style="font-size:0.9rem; color:var(--text-light); margin-bottom:5px;">李龍龍（暫）降臨倒數</h1>
-      <div class="countdown-display" id="countdown-timer">-- <span>天</span></div>
-    </header>
-
-    <section class="calendar-section">
-      <div class="calendar-header">
-        <button onclick="changeMonth(-1)" style="border:none; background:none; cursor:pointer;">❮</button>
-        <h2 id="calendar-title">2026年 4月</h2>
-        <button onclick="changeMonth(1)" style="border:none; background:none; cursor:pointer;">❯</button>
-      </div>
-      <div class="calendar-weekdays">
-        <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
-      </div>
-      <div id="calendar-days" class="calendar-days"></div>
-    </section>
-
-    <section class="form-section" id="form-area">
-      <div class="form-header">
-        <span id="form-title">新增紀錄</span>
-        <input type="date" id="input-date" class="date-input" onchange="highlightSelectedDate()">
-      </div>
-
-      <div class="input-group">
-        <label>選擇分類色</label>
-        <div class="color-picker" id="color-picker">
-          <div class="color-opt active" style="background:var(--color-1)" data-color="var(--color-1)"></div>
-          <div class="color-opt" style="background:var(--color-2)" data-color="var(--color-2)"></div>
-          <div class="color-opt" style="background:var(--color-3)" data-color="var(--color-3)"></div>
-          <div class="color-opt" style="background:var(--color-4)" data-color="var(--color-4)"></div>
-          <div class="color-opt" style="background:var(--color-5)" data-color="var(--color-5)"></div>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <input type="text" id="input-content" class="form-control" placeholder="輸入項目內容 (如：買葉酸)">
-      </div>
+  <div class="page-overlay">
+    <div class="container">
       
-      <div class="input-group">
-        <input type="number" id="input-cost" class="form-control" placeholder="金額 (無則留空)">
+      <div class="logo-container">
+        <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'">
       </div>
 
-      <button id="btn-save" class="btn-submit" onclick="saveRecord()">存入紀錄</button>
-      <button id="btn-cancel" class="btn-cancel" style="display:none;" onclick="resetForm()">取消編輯</button>
-    </section>
+      <header class="header-section">
+        <h1 style="font-size:0.9rem; color:var(--text-light); margin-bottom:8px; font-weight:normal; letter-spacing: 2px;">李龍龍（暫）降臨倒數</h1>
+        <div class="countdown-display" id="countdown-timer">0<span>天</span></div>
+      </header>
 
-    <h2 class="records-title">歷程與花費明細</h2>
-    <div id="records-container"></div>
-    
-    <div id="grand-total-section"></div>
+      <section class="calendar-section">
+        <div class="calendar-header">
+          <button onclick="changeMonth(-1)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">❮</button>
+          <h2 id="calendar-title">2026年 12月</h2>
+          <button onclick="changeMonth(1)" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">❯</button>
+        </div>
+        <div class="calendar-weekdays">
+          <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+        </div>
+        <div id="calendar-days" class="calendar-days"></div>
+      </section>
+
+      <section class="form-section" id="form-area">
+        <div class="form-header">
+          <span id="form-title" style="font-weight: 600;">新增紀錄</span>
+          <input type="date" id="input-date" class="date-input" onchange="highlightSelectedDate()">
+        </div>
+
+        <div class="input-group">
+          <label>標籤色</label>
+          <div class="color-picker" id="color-picker">
+            <div class="color-opt active" style="background:var(--color-1)" data-color="var(--color-1)"></div>
+            <div class="color-opt" style="background:var(--color-2)" data-color="var(--color-2)"></div>
+            <div class="color-opt" style="background:var(--color-3)" data-color="var(--color-3)"></div>
+            <div class="color-opt" style="background:var(--color-4)" data-color="var(--color-4)"></div>
+            <div class="color-opt" style="background:var(--color-5)" data-color="var(--color-5)"></div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <div class="quick-btns">
+            <button class="btn-quick" onclick="quickFill('產檢', 'var(--color-2)')">＋ 產檢</button>
+          </div>
+          <input type="text" id="input-content" class="form-control" placeholder="輸入內容">
+        </div>
+
+        <div class="input-group">
+          <input type="number" id="input-cost" class="form-control" placeholder="花費$">
+        </div>
+
+        <div class="input-group">
+          <label>今日筆記 (限 30 字)</label>
+          <textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="寫點什麼呢..."></textarea>
+        </div>
+
+        <button id="btn-save" class="btn-submit" onclick="saveRecord()">存入行事曆</button>
+        <button id="btn-cancel" class="btn-cancel" style="display:none;" onclick="resetForm()">取消編輯</button>
+      </section>
+
+      <h2 class="records-title">將將將！這裡會統計一切！</h2>
+      <div id="records-container"></div>
+      <div id="grand-total-section"></div>
+    </div>
   </div>
 
   <script>
-    const dueDate = new Date('2026-06-12');
-    let records = [
-      { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, color: "var(--color-4)" },
-      { id: 2, date: "2026-04-25", content: "產檢", cost: 250, color: "var(--color-2)" }
+    // 1. 預產期更新為 2026/12/12
+    const dueDate = new Date('2026-12-12');
+    
+    let records = JSON.parse(localStorage.getItem('longlong_records')) || [
+      { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" }
     ];
     
-    let currentYear = 2026;
-    let currentMonth = 3; 
-    let selectedColor = "var(--color-1)";
+    let currentYear = 2026; 
+    let currentMonth = 11; // 顯示 12 月
+    let selectedColor = "var(--color-1)"; 
     let editingId = null;
 
-    // 顏色切換
-    document.querySelectorAll('.color-opt').forEach(opt => {
-      opt.addEventListener('click', () => {
-        document.querySelectorAll('.color-opt').forEach(o => o.classList.remove('active'));
-        opt.classList.add('active');
-        selectedColor = opt.getAttribute('data-color');
-      });
-    });
-
     function init() {
-      document.getElementById('input-date').value = "2026-04-25";
-      updateCountdown();
+      document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
+      startCountdownAnimation();
       renderCalendar();
       renderRecords();
+      setupColorPicker();
     }
 
-    function updateCountdown() {
+    // 2. 數字滾動動畫
+    function startCountdownAnimation() {
       const diff = Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24));
-      document.getElementById('countdown-timer').innerHTML = diff > 0 ? `${diff} <span>天</span>` : `李龍龍降臨！`;
+      const target = diff > 0 ? diff : 0;
+      let start = 0;
+      const duration = 1500; 
+      const step = (timestamp) => {
+        if (!startTime) var startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const current = Math.floor(progress * target);
+        document.getElementById('countdown-timer').innerHTML = `${current}<span>天</span>`;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    function setupColorPicker() {
+      document.querySelectorAll('.color-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          document.querySelectorAll('.color-opt').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          selectedColor = opt.getAttribute('data-color');
+        });
+      });
+    }
+
+    // 5. 產檢按鈕快速帶入
+    function quickFill(text, color) {
+      document.getElementById('input-content').value = text;
+      selectedColor = color;
+      document.querySelectorAll('.color-opt').forEach(opt => {
+        opt.classList.toggle('active', opt.getAttribute('data-color') === color);
+      });
     }
 
     function changeMonth(offset) {
@@ -189,9 +250,10 @@
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const div = document.createElement('div');
         div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
+        
         if(new Date().toDateString() === new Date(currentYear, currentMonth, i).toDateString()) div.classList.add('today');
-
         div.innerHTML = `<div class="calendar-day-num">${i}</div>`;
+        
         records.filter(r => r.date === dateStr).forEach(r => {
           div.innerHTML += `<div class="event-bar" style="background-color:${r.color}">${r.content}</div>`;
         });
@@ -199,8 +261,6 @@
         div.onclick = () => {
           document.getElementById('input-date').value = dateStr;
           renderCalendar();
-          // 自動捲動到表單區方便編輯
-          document.getElementById('form-area').scrollIntoView({ behavior: 'smooth' });
         };
         container.appendChild(div);
       }
@@ -208,63 +268,54 @@
 
     function highlightSelectedDate() {
       const val = new Date(document.getElementById('input-date').value);
-      currentYear = val.getFullYear(); currentMonth = val.getMonth();
-      renderCalendar();
+      currentYear = val.getFullYear(); currentMonth = val.getMonth(); renderCalendar();
     }
 
-    // 儲存紀錄 (新增或更新)
     function saveRecord() {
       const content = document.getElementById('input-content').value.trim();
       const cost = parseInt(document.getElementById('input-cost').value) || 0;
+      const note = document.getElementById('input-note').value.trim();
       const date = document.getElementById('input-date').value;
 
-      if (!content) return alert("請輸入內容項目");
+      if (!content) return alert("請輸入內容喔！");
 
       if (editingId) {
-        // 更新現有紀錄
         const index = records.findIndex(r => r.id === editingId);
-        records[index] = { ...records[index], date, content, cost, color: selectedColor };
+        records[index] = { ...records[index], date, content, cost, note, color: selectedColor };
         editingId = null;
       } else {
-        // 新增紀錄
-        records.push({ id: Date.now(), date, content, cost, color: selectedColor });
+        records.push({ id: Date.now(), date, content, cost, note, color: selectedColor });
       }
 
       records.sort((a, b) => new Date(b.date) - new Date(a.date));
-      resetForm();
-      renderRecords();
-      renderCalendar();
+      localStorage.setItem('longlong_records', JSON.stringify(records));
+      resetForm(); renderRecords(); renderCalendar();
     }
 
-    // 編輯紀錄：將資料帶回表單
     function editRecord(id) {
       const r = records.find(record => record.id === id);
       if (!r) return;
-
       editingId = id;
       document.getElementById('input-date').value = r.date;
       document.getElementById('input-content').value = r.content;
-      document.getElementById('input-cost').value = r.cost === 0 ? "" : r.cost;
-      
-      // 更新顏色選擇器狀態
+      document.getElementById('input-cost').value = r.cost || "";
+      document.getElementById('input-note').value = r.note || "";
       selectedColor = r.color;
       document.querySelectorAll('.color-opt').forEach(opt => {
         opt.classList.toggle('active', opt.getAttribute('data-color') === r.color);
       });
-
-      document.getElementById('form-title').innerText = "編輯紀錄模式";
-      document.getElementById('btn-save').innerText = "更新紀錄內容";
+      document.getElementById('form-title').innerText = "編輯模式";
+      document.getElementById('btn-save').innerText = "確認修改";
       document.getElementById('btn-cancel').style.display = "block";
       document.getElementById('form-area').scrollIntoView({ behavior: 'smooth' });
-      renderCalendar(); // 確保日曆選取框同步
+      renderCalendar();
     }
 
-    // 刪除紀錄
     function deleteRecord(id) {
-      if (confirm("確定要刪除這筆紀錄嗎？")) {
+      if (confirm("確定要刪除這筆回憶嗎？")) {
         records = records.filter(r => r.id !== id);
-        renderRecords();
-        renderCalendar();
+        localStorage.setItem('longlong_records', JSON.stringify(records));
+        renderRecords(); renderCalendar();
       }
     }
 
@@ -272,6 +323,7 @@
       editingId = null;
       document.getElementById('input-content').value = "";
       document.getElementById('input-cost').value = "";
+      document.getElementById('input-note').value = "";
       document.getElementById('form-title').innerText = "新增紀錄";
       document.getElementById('btn-save').innerText = "存入行事曆";
       document.getElementById('btn-cancel').style.display = "none";
@@ -280,36 +332,31 @@
     function renderRecords() {
       const container = document.getElementById('records-container');
       const totalSection = document.getElementById('grand-total-section');
-      let total = 0;
-      container.innerHTML = '';
+      let total = 0; container.innerHTML = '';
       
-      if (records.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:20px; color:#AAA;">尚無紀錄</div>';
-        totalSection.innerHTML = '';
-        return;
-      }
+      if (records.length === 0) { totalSection.innerHTML = ''; return; }
 
       records.forEach(r => {
         total += r.cost;
         container.innerHTML += `
           <div class="record-card" style="border-left-color:${r.color}">
-            <div class="record-info">
-              <div style="font-size:0.75rem; color:var(--text-light);">${r.date.replace(/-/g, '/')}</div>
-              <div style="font-weight:bold; font-size:1rem; margin-top:2px;">${r.content}</div>
-              <div style="color:var(--danger-color); font-weight:bold; margin-top:4px;">${r.cost > 0 ? '$'+r.cost.toLocaleString() : '-'}</div>
+            <div class="record-info" style="flex:1;">
+              <div style="font-size:0.75rem; color:var(--text-light);">${r.date}</div>
+              <div style="font-weight:bold; font-size:1.1rem; margin-top:2px;">${r.content}</div>
+              ${r.note ? `<div class="note-text">${r.note}</div>` : ''}
+              <div style="color:var(--danger-color); font-weight:bold; margin-top:10px;">${r.cost > 0 ? '$'+r.cost.toLocaleString() : '-'}</div>
             </div>
             <div class="record-actions">
-              <button class="action-btn edit-btn" onclick="editRecord(${r.id})">✎ 編輯</button>
-              <button class="action-btn del-btn" onclick="deleteRecord(${r.id})">✕ 刪除</button>
+              <button class="action-btn" onclick="editRecord(${r.id})">✎</button>
+              <button class="action-btn" style="color:var(--danger-color)" onclick="deleteRecord(${r.id})">✕</button>
             </div>
           </div>
         `;
       });
 
-      // ★ 渲染最下方的總計欄位 ★
       totalSection.innerHTML = `
         <div class="total-summary-row">
-          <span style="font-weight:normal; opacity:0.9;">累計醫療花費總計</span>
+          <span style="font-weight:normal; opacity:0.85; font-size:0.9rem;">費用總計</span>
           <span style="font-size:1.6rem; font-weight:bold;">NT$ ${total.toLocaleString()}</span>
         </div>
       `;
