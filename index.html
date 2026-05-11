@@ -6,15 +6,14 @@
   <title>李龍龍行事曆</title>
   <style>
     :root {
-      --bg-overlay: rgba(248, 246, 240, 0.88);
-      --card-bg: rgba(255, 255, 255, 0.92); 
+      --bg-overlay: rgba(248, 246, 240, 0.9);
+      --card-bg: rgba(255, 255, 255, 0.95); 
       --text-main: #5C544D; 
       --text-light: #8E8781; 
       --accent-color: #E2D3C1; 
       --accent-dark: #C9B8A3;
       --danger-color: #DDA7A5; 
       --today-color: #D6C2A9;
-      --edit-color: #B8C4D9;
       
       --color-1: #E2D3C1; --color-2: #D4E2D9; --color-3: #D6E0E9; --color-4: #E9D7D7; --color-5: #EFE5D3;
     }
@@ -61,17 +60,19 @@
     .calendar-day.selected { border: 2px solid var(--accent-dark); background: rgba(252, 250, 247, 1); }
     .event-bar { font-size: 9px; padding: 2px 4px; border-radius: 4px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4A443F; border-left: 2px solid rgba(0,0,0,0.15); }
 
-    .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .date-input { padding: 8px 12px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; color: var(--text-main); outline: none; }
     
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-size: 0.85rem; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+    .input-group { margin-bottom: 18px; }
+    .input-group label { display: block; font-size: 0.95rem; color: var(--text-main); margin-bottom: 8px; font-weight: bold; }
+    .label-with-btn { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    
     .color-picker { display: flex; gap: 12px; }
     .color-opt { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
     .color-opt.active { border-color: var(--text-main); transform: scale(1.15); }
 
-    .quick-btns { display: flex; gap: 8px; margin-bottom: 10px; }
-    .btn-quick { padding: 6px 12px; background: #fff; border: 1px solid var(--accent-color); border-radius: 20px; color: var(--text-main); font-size: 0.85rem; cursor: pointer; }
+    .btn-quick { padding: 4px 12px; background: #fff; border: 1.5px solid var(--accent-color); border-radius: 20px; color: var(--text-main); font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s; }
+    .btn-quick:hover { background: var(--accent-color); color: #fff; }
 
     .form-control { width: 100%; padding: 12px 15px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; outline: none; }
     textarea.form-control { resize: none; }
@@ -83,11 +84,15 @@
     .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; align-items: flex-start; }
     .note-text { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; font-style: italic; background: #FDFBF8; padding: 5px 8px; border-radius: 5px; display: inline-block; }
     .record-actions { display: flex; gap: 15px; }
-    .action-btn { background: none; border: none; cursor: pointer; font-size: 0.9rem; }
 
+    /* 費用總計開關 */
+    .total-summary-container { margin-top: 20px; text-align: center; }
+    .toggle-total-btn { background: var(--accent-color); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-size: 1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.3s; }
+    .toggle-total-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+    
     .total-summary-row {
-      background: #5C544D; color: #FFF; padding: 22px; border-radius: 16px; margin-top: 20px;
-      display: flex; justify-content: space-between; align-items: center;
+      display: none; background: #5C544D; color: #FFF; padding: 22px; border-radius: 16px; margin-top: 15px;
+      justify-content: space-between; align-items: center; text-align: left;
     }
   </style>
 </head>
@@ -119,7 +124,7 @@
 
       <section class="form-section" id="form-area">
         <div class="form-header">
-          <span id="form-title" style="font-weight: 600;">新增紀錄</span>
+          <span id="form-title" style="font-weight: bold;">新增紀錄</span>
           <input type="date" id="input-date" class="date-input" onchange="highlightSelectedDate()">
         </div>
 
@@ -135,19 +140,21 @@
         </div>
 
         <div class="input-group">
-          <div class="quick-btns">
+          <div class="label-with-btn">
+            <label style="margin-bottom:0;">今日行程</label>
             <button class="btn-quick" onclick="quickFill('產檢', 'var(--color-2)')">＋ 產檢</button>
           </div>
           <input type="text" id="input-content" class="form-control" placeholder="輸入內容">
         </div>
 
         <div class="input-group">
-          <input type="number" id="input-cost" class="form-control" placeholder="花費$">
+          <label>費用</label>
+          <input type="number" id="input-cost" class="form-control" placeholder="$" min="0">
         </div>
 
         <div class="input-group">
-          <label>Murmur... (限 30 字)</label>
-          <textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="寫點什麼呢..."></textarea>
+          <label>Murmur... (只能唸 30 字)</label>
+          <textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="盡情Murmur...."></textarea>
         </div>
 
         <button id="btn-save" class="btn-submit" onclick="saveRecord()">上傳紀錄</button>
@@ -156,19 +163,25 @@
 
       <h2 class="records-title">將將將！這裡會統計一切！</h2>
       <div id="records-container"></div>
-      <div id="grand-total-section"></div>
+      
+      <div class="total-summary-container">
+        <button class="toggle-total-btn" id="toggle-total-btn" onclick="toggleTotalSection()">＼按我／</button>
+        <div id="total-summary-row" class="total-summary-row">
+          <span style="font-weight:normal; opacity:0.85; font-size:0.95rem;">費用總計</span>
+          <span style="font-size:1.6rem; font-weight:bold;">NT$ <span id="grand-total-amount">0</span></span>
+        </div>
+      </div>
+
     </div>
   </div>
 
   <script>
     const dueDate = new Date('2026-12-12');
     
-    // 已匯入您的 CSV 資料
     let records = JSON.parse(localStorage.getItem('longlong_records')) || [
       { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" },
       { id: 2, date: "2026-04-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
-      { id: 3, date: "2026-05-22", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
-      { id: 4, date: "2026-06-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" }
+      { id: 3, date: "2026-05-22", content: "產檢", cost: 250, note: "", color: "var(--color-2)" }
     ];
     
     const now = new Date();
@@ -179,29 +192,48 @@
 
     function init() {
       document.getElementById('input-date').value = now.toISOString().split('T')[0];
-      startCountdownAnimation();
+      startCounterAnimation('countdown-timer', Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24)));
       renderCalendar();
       renderRecords();
       setupColorPicker();
     }
 
-    function startCountdownAnimation() {
-      const today = new Date();
-      today.setHours(0,0,0,0);
-      const diff = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-      const target = diff > 0 ? diff : 0;
-      let start = 0;
-      const duration = 1500; 
+    // 通用的數字滾動動畫
+    function startCounterAnimation(elementId, targetValue) {
+      const el = document.getElementById(elementId);
+      const target = targetValue > 0 ? targetValue : 0;
       let startTime = null;
-      
+      const duration = 1500; 
+
       const step = (timestamp) => {
         if (!startTime) startTime = timestamp;
         const progress = Math.min((timestamp - startTime) / duration, 1);
         const current = Math.floor(progress * target);
-        document.getElementById('countdown-timer').innerHTML = `${current}<span>天</span>`;
+        if (elementId === 'countdown-timer') {
+          el.innerHTML = `${current}<span>天</span>`;
+        } else {
+          el.innerText = current.toLocaleString();
+        }
         if (progress < 1) window.requestAnimationFrame(step);
       };
       window.requestAnimationFrame(step);
+    }
+
+    // 費用總計開關邏輯
+    function toggleTotalSection() {
+      const row = document.getElementById('total-summary-row');
+      const btn = document.getElementById('toggle-total-btn');
+      
+      if (row.style.display === 'flex') {
+        row.style.display = 'none';
+        btn.innerText = '＼按我／';
+      } else {
+        row.style.display = 'flex';
+        btn.innerText = '收起來';
+        // 觸發總金額滾動動畫
+        const total = records.reduce((sum, r) => sum + (r.cost || 0), 0);
+        startCounterAnimation('grand-total-amount', total);
+      }
     }
 
     function setupColorPicker() {
@@ -234,30 +266,20 @@
       const inputDate = document.getElementById('input-date').value;
       document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`;
       container.innerHTML = '';
-
       const firstDay = new Date(currentYear, currentMonth, 1).getDay();
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-      for (let i = 0; i < firstDay; i++) {
-        container.innerHTML += `<div class="calendar-day empty" style="visibility:hidden;"></div>`;
-      }
-
+      for (let i = 0; i < firstDay; i++) container.innerHTML += `<div class="calendar-day empty" style="visibility:hidden;"></div>`;
       for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const div = document.createElement('div');
         div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
-        
         if(new Date().toDateString() === new Date(currentYear, currentMonth, i).toDateString()) div.classList.add('today');
         div.innerHTML = `<div class="calendar-day-num">${i}</div>`;
-        
         records.filter(r => r.date === dateStr).forEach(r => {
           div.innerHTML += `<div class="event-bar" style="background-color:${r.color}">${r.content}</div>`;
         });
-
-        div.onclick = () => {
-          document.getElementById('input-date').value = dateStr;
-          renderCalendar();
-        };
+        div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); };
         container.appendChild(div);
       }
     }
@@ -269,7 +291,7 @@
 
     function saveRecord() {
       const content = document.getElementById('input-content').value.trim();
-      const cost = parseInt(document.getElementById('input-cost').value) || 0;
+      const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0); // 強制不為負值
       const note = document.getElementById('input-note').value.trim();
       const date = document.getElementById('input-date').value;
 
@@ -286,6 +308,12 @@
       records.sort((a, b) => new Date(b.date) - new Date(a.date));
       localStorage.setItem('longlong_records', JSON.stringify(records));
       resetForm(); renderRecords(); renderCalendar();
+      
+      // 如果總計是打開的，即時更新金額
+      if (document.getElementById('total-summary-row').style.display === 'flex') {
+        const total = records.reduce((sum, r) => sum + r.cost, 0);
+        document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+      }
     }
 
     function editRecord(id) {
@@ -312,6 +340,10 @@
         records = records.filter(r => r.id !== id);
         localStorage.setItem('longlong_records', JSON.stringify(records));
         renderRecords(); renderCalendar();
+        if (document.getElementById('total-summary-row').style.display === 'flex') {
+          const total = records.reduce((sum, r) => sum + r.cost, 0);
+          document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+        }
       }
     }
 
@@ -327,13 +359,10 @@
 
     function renderRecords() {
       const container = document.getElementById('records-container');
-      const totalSection = document.getElementById('grand-total-section');
-      let total = 0; container.innerHTML = '';
-      
-      if (records.length === 0) { totalSection.innerHTML = ''; return; }
+      container.innerHTML = '';
+      if (records.length === 0) return;
 
       records.forEach(r => {
-        total += r.cost;
         container.innerHTML += `
           <div class="record-card" style="border-left-color:${r.color}">
             <div class="record-info" style="flex:1;">
@@ -343,19 +372,12 @@
               <div style="color:var(--danger-color); font-weight:bold; margin-top:10px;">${r.cost > 0 ? '$'+r.cost.toLocaleString() : '-'}</div>
             </div>
             <div class="record-actions">
-              <button class="action-btn" onclick="editRecord(${r.id})">✎</button>
-              <button class="action-btn" style="color:var(--danger-color)" onclick="deleteRecord(${r.id})">✕</button>
+              <button class="action-btn" style="background:none;border:none;cursor:pointer;" onclick="editRecord(${r.id})">✎</button>
+              <button class="action-btn" style="background:none;border:none;cursor:pointer;color:var(--danger-color)" onclick="deleteRecord(${r.id})">✕</button>
             </div>
           </div>
         `;
       });
-
-      totalSection.innerHTML = `
-        <div class="total-summary-row">
-          <span style="font-weight:normal; opacity:0.85; font-size:0.9rem;">費用總計</span>
-          <span style="font-size:1.6rem; font-weight:bold;">NT$ ${total.toLocaleString()}</span>
-        </div>
-      `;
     }
 
     init();
