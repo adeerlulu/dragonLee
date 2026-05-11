@@ -33,8 +33,9 @@
     .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
     .container { max-width: 600px; margin: 0 auto; padding: 15px; }
 
+    /* LOGO 區塊 */
     .logo-container { text-align: center; padding-top: 25px; margin-bottom: 15px; }
-    .main-logo { max-width: 100px; height: auto; }
+    .main-logo { max-width: 120px; height: auto; }
 
     /* 區塊樣式 */
     .header-section, .calendar-section, .form-section, .record-card {
@@ -46,7 +47,9 @@
       padding: 20px;
     }
 
+    /* 降臨倒數區塊 */
     .header-section { text-align: center; }
+    .congrats-img { max-width: 140px; height: auto; margin-bottom: 15px; }
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
 
@@ -77,7 +80,7 @@
     .btn-quick { padding: 4px 12px; background: #fff; border: 1.5px solid var(--accent-color); border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
     .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
-    /* ★ 彈窗 (Modal) 優化 ★ */
+    /* 彈窗 (Modal) */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(92, 84, 77, 0.4); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px;
@@ -91,13 +94,12 @@
     
     @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* ★ 統計明細 捲軸樣式 ★ */
+    /* 統計明細 捲軸樣式 */
     .records-scroll-container {
-      max-height: 480px; /* 大約顯示 5 則的高度 */
+      max-height: 480px; 
       overflow-y: auto;
       padding-right: 5px;
     }
-    /* 自訂美化捲軸 */
     .records-scroll-container::-webkit-scrollbar { width: 6px; }
     .records-scroll-container::-webkit-scrollbar-track { background: transparent; }
     .records-scroll-container::-webkit-scrollbar-thumb { background: var(--accent-dark); border-radius: 10px; }
@@ -106,7 +108,7 @@
     .toggle-total-btn { background: var(--accent-color); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     .total-summary-row { display: none; background: #5C544D; color: #FFF; padding: 20px; border-radius: 16px; margin-top: 15px; justify-content: space-between; align-items: center; }
     
-    .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; }
+    .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; margin-bottom: 10px;}
     .note-text { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; font-style: italic; background: #FDFBF8; padding: 5px 8px; border-radius: 5px; display: inline-block; }
   </style>
 </head>
@@ -114,11 +116,14 @@
 
   <div class="page-overlay">
     <div class="container">
+      
       <div class="logo-container">
         <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'">
       </div>
 
       <header class="header-section">
+        <img src="congrats.png" alt="Congrats" class="congrats-img" onerror="this.style.display='none'">
+        
         <h1 style="font-size:0.9rem; color:var(--text-light); margin-bottom:5px; font-weight:normal;">李龍龍（暫）降臨倒數</h1>
         <div class="countdown-display" id="countdown-timer">0<span>天</span></div>
       </header>
@@ -232,7 +237,6 @@
   <script>
     const dueDate = new Date('2026-12-12');
     
-    // 初始化匯入 Excel 資料
     let records = JSON.parse(localStorage.getItem('longlong_records')) || [
       { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" },
       { id: 2, date: "2026-04-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
@@ -256,7 +260,6 @@
       setupColorPickers();
     }
 
-    // 數字滾動動畫
     function startCounterAnimation(id, target) {
       const el = document.getElementById(id);
       let startTime = null;
@@ -272,9 +275,7 @@
       requestAnimationFrame(step);
     }
 
-    // 顏色選擇器邏輯
     function setupColorPickers() {
-      // 表單顏色
       document.querySelectorAll('#form-color-picker .color-opt').forEach(opt => {
         opt.onclick = () => {
           document.querySelectorAll('#form-color-picker .color-opt').forEach(o => o.classList.remove('active'));
@@ -282,7 +283,6 @@
           selectedFormColor = opt.getAttribute('data-color');
         };
       });
-      // 彈窗顏色
       document.querySelectorAll('#modal-color-picker .color-opt').forEach(opt => {
         opt.onclick = () => {
           document.querySelectorAll('#modal-color-picker .color-opt').forEach(o => o.classList.remove('active'));
@@ -292,7 +292,6 @@
       });
     }
 
-    // 總額開關
     function toggleTotalSection() {
       const row = document.getElementById('total-summary-row');
       const btn = document.getElementById('toggle-total-btn');
@@ -390,7 +389,7 @@
       const container = document.getElementById('records-container');
       container.innerHTML = '';
       records.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(r => {
-        container.innerHTML += `<div class="record-card" style="border-left-color:${r.color}; margin-bottom:10px;">
+        container.innerHTML += `<div class="record-card" style="border-left-color:${r.color};">
           <div style="flex:1;"><small>${r.date}</small><br><b style="font-size:1.05rem;">${r.content}</b><br>
           ${r.note ? `<span class="note-text">${r.note}</span>` : ''}
           </div>
