@@ -36,6 +36,7 @@
     .logo-container { text-align: center; padding-top: 25px; margin-bottom: 15px; }
     .main-logo { max-width: 100px; height: auto; }
 
+    /* 區塊樣式 */
     .header-section, .calendar-section, .form-section, .record-card {
       background: var(--card-bg) !important;
       backdrop-filter: blur(8px);
@@ -50,7 +51,6 @@
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
 
     .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .calendar-header h2 { font-size: 1.1rem; }
     .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 10px; }
     .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     .calendar-day { min-height: 85px; border: 1px solid rgba(226, 211, 193, 0.2); border-radius: 8px; padding: 5px 2px; cursor: pointer; display: flex; flex-direction: column; }
@@ -62,38 +62,38 @@
       font-size: 10px; padding: 3px 5px; border-radius: 5px; margin-top: 3px; 
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis; 
       color: #4A443F; border-left: 3px solid rgba(0,0,0,0.1);
-      transition: transform 0.1s;
     }
-    .event-bar:active { transform: scale(0.95); }
 
     /* 表單樣式 */
-    .input-group { margin-bottom: 15px; }
-    .input-group label { display: block; font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; }
-    .form-control { width: 100%; padding: 12px; border: 1px solid #EAE6DF; border-radius: 10px; outline: none; font-size: 1rem; }
-    .color-picker { display: flex; gap: 10px; }
-    .color-opt { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-    .color-opt.active { border-color: var(--text-main); transform: scale(1.1); }
+    .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .input-group { margin-bottom: 18px; }
+    .input-group label { display: block; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px; }
+    .form-control { width: 100%; padding: 12px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; outline: none; }
+    
+    .color-picker { display: flex; gap: 12px; }
+    .color-opt { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+    .color-opt.active { border-color: var(--text-main); transform: scale(1.15); }
+
+    .btn-quick { padding: 4px 12px; background: #fff; border: 1.5px solid var(--accent-color); border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
     .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
 
-    /* 彈窗樣式 (Modal) */
+    /* 彈窗 */
     .modal-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(92, 84, 77, 0.4); backdrop-filter: blur(4px);
-      z-index: 1000; justify-content: center; align-items: center; padding: 20px;
+      background: rgba(92, 84, 77, 0.4); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px;
     }
     .modal-content {
-      background: white; width: 100%; max-width: 400px; border-radius: 20px;
-      padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      position: relative; animation: modalPop 0.3s ease-out;
+      background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; animation: modalPop 0.3s ease-out;
     }
     @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-header { font-size: 1.2rem; font-weight: bold; margin-bottom: 20px; display: flex; justify-content: space-between; }
-    .close-modal { cursor: pointer; color: var(--text-light); font-size: 1.5rem; }
 
-    /* 統計按鈕 */
+    /* 統計區塊 */
     .total-summary-container { margin-top: 20px; text-align: center; }
     .toggle-total-btn { background: var(--accent-color); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     .total-summary-row { display: none; background: #5C544D; color: #FFF; padding: 20px; border-radius: 16px; margin-top: 15px; justify-content: space-between; align-items: center; }
+    
+    .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; }
+    .note-text { font-size: 0.85rem; color: var(--text-light); margin-top: 8px; font-style: italic; background: #FDFBF8; padding: 5px 8px; border-radius: 5px; }
   </style>
 </head>
 <body>
@@ -111,9 +111,9 @@
 
       <section class="calendar-section">
         <div class="calendar-header">
-          <button onclick="changeMonth(-1)" style="border:none; background:none;">❮</button>
+          <button onclick="changeMonth(-1)" style="border:none; background:none; cursor:pointer;">❮</button>
           <h2 id="calendar-title"></h2>
-          <button onclick="changeMonth(1)" style="border:none; background:none;">❯</button>
+          <button onclick="changeMonth(1)" style="border:none; background:none; cursor:pointer;">❯</button>
         </div>
         <div class="calendar-weekdays">
           <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
@@ -121,34 +121,49 @@
         <div id="calendar-days" class="calendar-days"></div>
       </section>
 
-      <section class="form-section">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-          <span style="font-weight:bold;">新增紀錄</span>
-          <input type="date" id="input-date" style="border:1px solid #EAE6DF; border-radius:8px; padding:5px;" onchange="highlightSelectedDate()">
+      <section class="form-section" id="form-area">
+        <div class="form-header">
+          <span style="font-weight: bold;">新增紀錄</span>
+          <input type="date" id="input-date" class="date-input" onchange="highlightSelectedDate()" style="border:1px solid #EAE6DF; border-radius:8px; padding:5px;">
         </div>
+
+        <div class="input-group">
+          <label>標籤色</label>
+          <div class="color-picker" id="form-color-picker">
+            <div class="color-opt active" style="background:var(--color-1)" data-color="var(--color-1)"></div>
+            <div class="color-opt" style="background:var(--color-2)" data-color="var(--color-2)"></div>
+            <div class="color-opt" style="background:var(--color-3)" data-color="var(--color-3)"></div>
+            <div class="color-opt" style="background:var(--color-4)" data-color="var(--color-4)"></div>
+            <div class="color-opt" style="background:var(--color-5)" data-color="var(--color-5)"></div>
+          </div>
+        </div>
+
         <div class="input-group">
           <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
             <label style="margin-bottom:0;">今日行程</label>
-            <button onclick="quickFill('產檢', 'var(--color-2)')" style="padding:2px 10px; border-radius:15px; border:1.5px solid var(--accent-color); background:white; font-size:0.8rem;">＋ 產檢</button>
+            <button class="btn-quick" onclick="quickFill('產檢', 'var(--color-2)')">＋ 產檢</button>
           </div>
           <input type="text" id="input-content" class="form-control" placeholder="輸入內容">
         </div>
+
         <div class="input-group">
           <label>費用</label>
           <input type="number" id="input-cost" class="form-control" placeholder="$" min="0">
         </div>
+
         <div class="input-group">
           <label>Murmur... (只能唸 30 字)</label>
           <textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="盡情Murmur...."></textarea>
         </div>
+
         <button class="btn-submit" onclick="saveRecord()">上傳紀錄</button>
       </section>
 
-      <h2 class="records-title" style="text-align:center; font-size:1.1rem; margin:20px 0;">將將將！這裡會統計一切！</h2>
+      <h2 style="text-align:center; font-size:1.1rem; margin:20px 0;">將將將！這裡會統計一切！</h2>
       <div id="records-container"></div>
       
       <div class="total-summary-container">
-        <button class="toggle-total-btn" onclick="toggleTotalSection()">＼按我／</button>
+        <button class="toggle-total-btn" id="toggle-total-btn" onclick="toggleTotalSection()">＼按我／</button>
         <div id="total-summary-row" class="total-summary-row">
           <span>費用總計</span>
           <span style="font-size:1.5rem; font-weight:bold;">NT$ <span id="grand-total-amount">0</span></span>
@@ -159,10 +174,7 @@
 
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-content">
-      <div class="modal-header">
-        <span>編輯資料</span>
-        <span class="close-modal" onclick="closeModal()">×</span>
-      </div>
+      <h3 style="margin-bottom:15px;">編輯資料</h3>
       <div class="input-group">
         <label>標籤色</label>
         <div class="color-picker" id="modal-color-picker">
@@ -173,54 +185,93 @@
           <div class="color-opt" style="background:var(--color-5)" data-color="var(--color-5)"></div>
         </div>
       </div>
-      <div class="input-group">
-        <label>今日行程</label>
-        <input type="text" id="modal-content" class="form-control">
-      </div>
-      <div class="input-group">
-        <label>費用</label>
-        <input type="number" id="modal-cost" class="form-control" min="0">
-      </div>
-      <div class="input-group">
-        <label>Murmur...</label>
-        <textarea id="modal-note" class="form-control" maxlength="30" rows="2"></textarea>
-      </div>
+      <input type="text" id="modal-content" class="form-control" style="margin-bottom:15px;">
+      <input type="number" id="modal-cost" class="form-control" style="margin-bottom:15px;" min="0">
+      <textarea id="modal-note" class="form-control" maxlength="30" rows="2" style="margin-bottom:15px;"></textarea>
       <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-        <button class="btn-submit" onclick="updateFromModal()">儲存修改</button>
-        <button class="btn-submit" style="background:var(--danger-color);" onclick="deleteFromModal()">刪除紀錄</button>
+        <button class="btn-submit" onclick="updateFromModal()">儲存</button>
+        <button class="btn-submit" style="background:var(--danger-color);" onclick="deleteFromModal()">刪除</button>
       </div>
+      <button onclick="closeModal()" style="margin-top:10px; width:100%; background:none; border:none; color:var(--text-light); cursor:pointer;">取消</button>
     </div>
   </div>
 
   <script>
     const dueDate = new Date('2026-12-12');
+    
+    // 初始化匯入 Excel 資料
     let records = JSON.parse(localStorage.getItem('longlong_records')) || [
       { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" },
-      { id: 2, date: "2026-04-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" }
+      { id: 2, date: "2026-04-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+      { id: 3, date: "2026-05-22", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+      { id: 4, date: "2026-06-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+      { id: 5, date: "2026-07-23", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+      { id: 6, date: "2026-08-21", content: "產檢", cost: 250, note: "", color: "var(--color-2)" }
     ];
     
-    let currentYear = new Date().getFullYear(); 
-    let currentMonth = new Date().getMonth(); 
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedFormColor = "var(--color-1)";
+    let selectedModalColor = "var(--color-1)";
     let editingId = null;
-    let modalSelectedColor = "var(--color-1)";
 
     function init() {
       document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
       startCounterAnimation('countdown-timer', Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24)));
       renderCalendar();
       renderRecords();
-      setupModalColorPicker();
+      setupColorPickers();
     }
 
-    // 彈窗內顏色選擇
-    function setupModalColorPicker() {
+    // 數字滾動動畫
+    function startCounterAnimation(id, target) {
+      const el = document.getElementById(id);
+      let startTime = null;
+      const duration = 1500;
+      const step = (ts) => {
+        if (!startTime) startTime = ts;
+        const progress = Math.min((ts - startTime) / duration, 1);
+        const current = Math.floor(progress * target);
+        if (id === 'countdown-timer') el.innerHTML = `${current}<span>天</span>`;
+        else el.innerText = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+
+    // 顏色選擇器邏輯
+    function setupColorPickers() {
+      // 表單顏色
+      document.querySelectorAll('#form-color-picker .color-opt').forEach(opt => {
+        opt.onclick = () => {
+          document.querySelectorAll('#form-color-picker .color-opt').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          selectedFormColor = opt.getAttribute('data-color');
+        };
+      });
+      // 彈窗顏色
       document.querySelectorAll('#modal-color-picker .color-opt').forEach(opt => {
         opt.onclick = () => {
           document.querySelectorAll('#modal-color-picker .color-opt').forEach(o => o.classList.remove('active'));
           opt.classList.add('active');
-          modalSelectedColor = opt.getAttribute('data-color');
+          selectedModalColor = opt.getAttribute('data-color');
         };
       });
+    }
+
+    // 總額開關
+    function toggleTotalSection() {
+      const row = document.getElementById('total-summary-row');
+      const btn = document.getElementById('toggle-total-btn');
+      if (row.style.display === 'flex') {
+        row.style.display = 'none';
+        btn.innerText = '＼按我／';
+      } else {
+        row.style.display = 'flex';
+        btn.innerText = '\\ 趕快收起來 /';
+        const total = records.reduce((sum, r) => sum + r.cost, 0);
+        startCounterAnimation('grand-total-amount', total);
+      }
     }
 
     function renderCalendar() {
@@ -232,135 +283,89 @@
       const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
       for (let i = 0; i < firstDay; i++) container.innerHTML += `<div class="calendar-day empty" style="visibility:hidden;"></div>`;
-      
       for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
         const div = document.createElement('div');
         div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
+        if(new Date().toDateString() === new Date(currentYear, currentMonth, i).toDateString()) div.classList.add('today');
         div.innerHTML = `<div class="calendar-day-num">${i}</div>`;
-        
         records.filter(r => r.date === dateStr).forEach(r => {
           const bar = document.createElement('div');
           bar.className = 'event-bar';
           bar.style.backgroundColor = r.color;
           bar.innerText = r.content;
-          // ★ 點擊文字項目時跳出彈窗
-          bar.onclick = (e) => {
-            e.stopPropagation(); // 避免觸發格子的點擊
-            openEditModal(r.id);
-          };
+          bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); };
           div.appendChild(bar);
         });
-
-        div.onclick = () => {
-          document.getElementById('input-date').value = dateStr;
-          renderCalendar();
-        };
+        div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); };
         container.appendChild(div);
       }
     }
 
-    // 開啟彈窗並帶入資料
     function openEditModal(id) {
       const r = records.find(item => item.id === id);
-      if (!r) return;
       editingId = id;
       document.getElementById('modal-content').value = r.content;
-      document.getElementById('modal-cost').value = r.cost || 0;
-      document.getElementById('modal-note').value = r.note || "";
-      modalSelectedColor = r.color;
-      
+      document.getElementById('modal-cost').value = r.cost;
+      document.getElementById('modal-note').value = r.note;
+      selectedModalColor = r.color;
       document.querySelectorAll('#modal-color-picker .color-opt').forEach(opt => {
         opt.classList.toggle('active', opt.getAttribute('data-color') === r.color);
       });
-      
       document.getElementById('edit-modal').style.display = 'flex';
     }
 
-    function closeModal() {
-      document.getElementById('edit-modal').style.display = 'none';
-    }
+    function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
 
     function updateFromModal() {
-      const index = records.findIndex(r => r.id === editingId);
-      if (index !== -1) {
-        records[index].content = document.getElementById('modal-content').value;
-        records[index].cost = Math.max(0, parseInt(document.getElementById('modal-cost').value) || 0);
-        records[index].note = document.getElementById('modal-note').value;
-        records[index].color = modalSelectedColor;
-        saveAndRefresh();
-        closeModal();
-      }
+      const idx = records.findIndex(r => r.id === editingId);
+      records[idx].content = document.getElementById('modal-content').value;
+      records[idx].cost = Math.max(0, parseInt(document.getElementById('modal-cost').value) || 0);
+      records[idx].note = document.getElementById('modal-note').value;
+      records[idx].color = selectedModalColor;
+      saveAndRefresh(); closeModal();
     }
 
     function deleteFromModal() {
-      if (confirm("確定要刪除這筆紀錄嗎？")) {
-        records = records.filter(r => r.id !== editingId);
-        saveAndRefresh();
-        closeModal();
-      }
+      if(confirm("確定要刪除嗎？")) { records = records.filter(r => r.id !== editingId); saveAndRefresh(); closeModal(); }
     }
 
-    function saveAndRefresh() {
-      localStorage.setItem('longlong_records', JSON.stringify(records));
-      renderCalendar();
-      renderRecords();
-      updateTotalDisplay();
-    }
-
-    // 其他原本的功能 (新增、動畫、統計等)
     function saveRecord() {
       const content = document.getElementById('input-content').value.trim();
       const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0);
       const note = document.getElementById('input-note').value.trim();
       const date = document.getElementById('input-date').value;
-      if (!content) return alert("請輸入內容");
-      records.push({ id: Date.now(), date, content, cost, note, color: "var(--color-1)" });
+      if(!content) return alert("請輸入內容");
+      records.push({ id: Date.now(), date, content, cost, note, color: selectedFormColor });
       saveAndRefresh();
       document.getElementById('input-content').value = "";
       document.getElementById('input-cost').value = "";
       document.getElementById('input-note').value = "";
     }
 
+    function saveAndRefresh() {
+      localStorage.setItem('longlong_records', JSON.stringify(records));
+      renderCalendar(); renderRecords();
+      if(document.getElementById('total-summary-row').style.display === 'flex') {
+        const total = records.reduce((sum, r) => sum + r.cost, 0);
+        document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+      }
+    }
+
     function renderRecords() {
       const container = document.getElementById('records-container');
       container.innerHTML = '';
       records.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(r => {
-        container.innerHTML += `<div class="record-card" style="border-left-color:${r.color}; margin-bottom:10px; padding:15px; border-radius:12px; display:flex; justify-content:space-between;">
-          <div><small>${r.date}</small><br><b>${r.content}</b><br><small style="color:#888">${r.note}</small></div>
+        container.innerHTML += `<div class="record-card" style="border-left-color:${r.color}; margin-bottom:10px;">
+          <div style="flex:1;"><small>${r.date}</small><br><b>${r.content}</b><br><small style="color:#888">${r.note}</small></div>
           <div style="color:var(--danger-color); font-weight:bold;">$${r.cost.toLocaleString()}</div>
         </div>`;
       });
     }
 
-    function toggleTotalSection() {
-      const row = document.getElementById('total-summary-row');
-      row.style.display = row.style.display === 'flex' ? 'none' : 'flex';
-      updateTotalDisplay();
-    }
-
-    function updateTotalDisplay() {
-      if (document.getElementById('total-summary-row').style.display === 'flex') {
-        const total = records.reduce((sum, r) => sum + r.cost, 0);
-        startCounterAnimation('grand-total-amount', total);
-      }
-    }
-
-    function startCounterAnimation(id, target) {
-      const el = document.getElementById(id);
-      let startTime = null;
-      const step = (ts) => {
-        if (!startTime) startTime = ts;
-        const progress = Math.min((ts - startTime) / 1000, 1);
-        el.innerText = Math.floor(progress * target).toLocaleString();
-        if (progress < 1) requestAnimationFrame(step);
-      };
-      requestAnimationFrame(step);
-    }
-
+    function quickFill(t, c) { document.getElementById('input-content').value = t; }
     function changeMonth(n) { currentMonth += n; if(currentMonth<0){currentMonth=11;currentYear--} else if(currentMonth>11){currentMonth=0;currentYear++} renderCalendar(); }
     function highlightSelectedDate() { const v = new Date(document.getElementById('input-date').value); currentYear=v.getFullYear(); currentMonth=v.getMonth(); renderCalendar(); }
-    function quickFill(t, c) { document.getElementById('input-content').value = t; }
 
     init();
   </script>
