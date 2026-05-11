@@ -28,16 +28,17 @@
       background-color: #F8F6F0;
       color: var(--text-main);
       min-height: 100vh;
+      overflow-x: hidden; /* 防止貼紙超出螢幕時產生水平捲軸 */
     }
 
     .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
-    .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+    .container { max-width: 600px; margin: 0 auto; padding: 15px; position: relative; }
 
-    /* LOGO 區塊 */
-    .logo-container { text-align: center; padding-top: 25px; margin-bottom: 15px; }
-    .main-logo { max-width: 120px; height: auto; }
+    /* LOGO 區塊：放大 200% 並下方留白 200px */
+    .logo-container { text-align: center; padding-top: 25px; margin-bottom: 200px; }
+    .main-logo { max-width: 200px; height: auto; }
 
-    /* 區塊樣式 */
+    /* 區塊共通樣式 */
     .header-section, .calendar-section, .form-section, .record-card {
       background: var(--card-bg) !important;
       backdrop-filter: blur(8px);
@@ -48,8 +49,20 @@
     }
 
     /* 降臨倒數區塊 */
-    .header-section { text-align: center; }
-    .congrats-img { max-width: 140px; height: auto; margin-bottom: 15px; }
+    .header-section { text-align: center; position: relative; } /* 設為 relative 以便定位右上角貼紙 */
+    
+    /* Congrats 貼紙特效 */
+    .congrats-img { 
+      position: absolute; 
+      top: -45px;      /* 往上凸出 */
+      right: -20px;    /* 往右凸出 */
+      max-width: 120px; 
+      height: auto; 
+      z-index: 10; 
+      filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); /* 增加陰影使其立體 */
+      transform: rotate(8deg); /* 微微傾斜更活潑 */
+    }
+
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
 
