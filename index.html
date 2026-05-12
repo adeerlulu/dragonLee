@@ -75,9 +75,9 @@
     .calendar-day.selected { border: 2px solid var(--accent-dark); background: rgba(252, 250, 247, 1); }
     .event-bar { font-size: 10px; padding: 3px 5px; border-radius: 5px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4A443F; border-left: 3px solid rgba(0,0,0,0.1); }
 
-    /* 圖庫專區 (跑馬燈) */
+    /* 圖庫專區 (跑馬燈) - 修改為 4:3 比例 */
     .gallery-carousel { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scroll-snap-type: x mandatory; }
-    .photo-card { position: relative; flex: 0 0 160px; height: 200px; border-radius: 12px; overflow: hidden; scroll-snap-align: start; background: #eee; }
+    .photo-card { position: relative; flex: 0 0 200px; height: 150px; border-radius: 12px; overflow: hidden; scroll-snap-align: start; background: #eee; }
     .photo-card img { width: 100%; height: 100%; object-fit: cover; }
     .week-pill { position: absolute; top: 8px; left: 8px; background: var(--accent-color); color: #fff; font-size: 0.7rem; font-weight: bold; padding: 3px 10px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
     .delete-photo { position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; }
@@ -129,7 +129,7 @@
       </section>
 
       <section class="gallery-section">
-        <h3 style="font-size:1rem; margin-bottom:15px;">寶寶轉生預備圖 (超音波)</h3>
+        <h3 style="font-size:1rem; margin-bottom:15px;">李龍龍即時觀測</h3>
         <div id="gallery-carousel" class="gallery-carousel">
           </div>
         <div style="margin-top:15px; border-top:1px dashed #E2D3C1; padding-top:15px;">
@@ -294,7 +294,10 @@
     function handlePhotoUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      if (file.size > 1024 * 1024) return alert("檔案太大囉！請限制在 1MB 以內。");
+      if (file.size > 1024 * 1024) {
+        input.value = ""; // 清空輸入框
+        return alert("檔案太大囉！請限制在 1MB 以內。");
+      }
 
       const week = document.getElementById('upload-week').value;
       const reader = new FileReader();
@@ -304,7 +307,13 @@
           week: week,
           src: e.target.result
         };
-        galleryRef.child(photoData.id).set(photoData);
+        // 寫入 Firebase 後觸發成功訊息
+        galleryRef.child(photoData.id).set(photoData).then(() => {
+          alert("上傳成功！");
+          input.value = ""; // 清空上傳欄位，方便下次上傳
+        }).catch((error) => {
+          alert("上傳失敗：" + error.message);
+        });
       };
       reader.readAsDataURL(file);
     }
