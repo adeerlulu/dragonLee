@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>李龍龍の手帳本</title>
+  <link rel="icon" href="web.png" type="image/png">
+  
   <style>
     :root {
       --bg-overlay: rgba(248, 246, 240, 0.9);
@@ -34,9 +36,8 @@
     .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
     .container { max-width: 600px; margin: 0 auto; padding: 15px; position: relative; }
 
-    
     .logo-container { text-align: center; padding-top: 25px; margin-bottom: 100px; }
-    .main-logo { max-width: 600px; height: auto; }
+    .main-logo { max-width: 400px; height: auto; }
 
     /* 區塊共通樣式 */
     .header-section, .calendar-section, .form-section, .record-card {
@@ -48,19 +49,32 @@
       padding: 20px;
     }
 
-    /* 降臨倒數區塊 */
-    .header-section { text-align: center; position: relative; } /* 設為 relative 以便定位右上角貼紙 */
+    /* 降臨倒數區塊與表單區塊設定 relative 以便定位貼紙 */
+    .header-section { text-align: center; position: relative; } 
+    .form-section { position: relative; }
     
-    /* Congrats 貼紙特效 */
+    /* Congrats 貼紙特效 (右上) */
     .congrats-img { 
       position: absolute; 
-      top: -45px;      /* 往上凸出 */
-      right: -20px;    /* 往右凸出 */
+      top: -45px;      
+      right: -20px;    
       max-width: 120px; 
       height: auto; 
       z-index: 10; 
-      filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); /* 增加陰影使其立體 */
-      transform: rotate(8deg); /* 微微傾斜更活潑 */
+      filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); 
+      transform: rotate(8deg); 
+    }
+
+    /* Music 貼紙特效 (左上) */
+    .music-img { 
+      position: absolute; 
+      top: -40px;      
+      left: -25px;     
+      max-width: 100px; 
+      height: auto; 
+      z-index: 10; 
+      filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); 
+      transform: rotate(-10deg); 
     }
 
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
@@ -154,9 +168,11 @@
       </section>
 
       <section class="form-section" id="form-area">
+        <img src="music.png" alt="Music" class="music-img" onerror="this.style.display='none'">
+
         <div class="form-header">
-          <span style="font-weight: bold;">新增紀錄</span>
-          <input type="date" id="input-date" class="date-input" onchange="highlightSelectedDate()" style="border:1px solid #EAE6DF; border-radius:8px; padding:5px;">
+          <span style="font-weight: bold; position: relative; z-index: 1;">新增紀錄</span>
+          <input type="date" id="input-date" class="date-input" onchange="highlightSelectedDate()" style="border:1px solid #EAE6DF; border-radius:8px; padding:5px; position: relative; z-index: 1;">
         </div>
 
         <div class="input-group">
@@ -248,7 +264,9 @@
   </div>
 
   <script>
-    const dueDate = new Date('2026-12-12');
+    const dueYear = 2026;
+    const dueMonth = 11; 
+    const dueDateNum = 14;
     
     let records = JSON.parse(localStorage.getItem('longlong_records')) || [
       { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" },
@@ -266,8 +284,14 @@
     let editingId = null;
 
     function init() {
-      document.getElementById('input-date').value = new Date().toISOString().split('T')[0];
-      startCounterAnimation('countdown-timer', Math.ceil((dueDate - new Date()) / (1000 * 60 * 60 * 24)));
+      const now = new Date();
+      document.getElementById('input-date').value = now.toISOString().split('T')[0];
+      
+      const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const targetDate = new Date(dueYear, dueMonth, dueDateNum);
+      const diffDays = Math.ceil((targetDate - todayDate) / (1000 * 60 * 60 * 24));
+      
+      startCounterAnimation('countdown-timer', diffDays);
       renderCalendar();
       renderRecords();
       setupColorPickers();
@@ -277,10 +301,12 @@
       const el = document.getElementById(id);
       let startTime = null;
       const duration = 1500;
+      const targetVal = target > 0 ? target : 0; 
+      
       const step = (ts) => {
         if (!startTime) startTime = ts;
         const progress = Math.min((ts - startTime) / duration, 1);
-        const current = Math.floor(progress * target);
+        const current = Math.floor(progress * targetVal);
         if (id === 'countdown-timer') el.innerHTML = `${current}<span>天</span>`;
         else el.innerText = current.toLocaleString();
         if (progress < 1) requestAnimationFrame(step);
