@@ -48,7 +48,7 @@
     .logo-container { text-align: center; padding-top: 25px; margin-bottom: clamp(40px, 15vw, 100px); }
     .main-logo { width: 85%; max-width: 400px; height: auto; }
 
-    /* 區塊樣式 */
+   
     .header-section, .calendar-section, .form-section, .record-card, .gallery-section {
       background: var(--card-bg) !important;
       backdrop-filter: blur(8px);
@@ -58,16 +58,19 @@
       padding: 20px;
     }
 
+    
     .header-section { text-align: center; position: relative; } 
-    .congrats-img { position: absolute; top: -50px; right: -30px; max-width: 140px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(8deg); }
-    .music-img { position: absolute; top: -45px; left: -30px; max-width: 110px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(-10deg); }
+    .form-section { position: relative; } 
+
+    .congrats-img { position: absolute; top: -50px; right: -30px; max-width: 140px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(8deg); transition: all 0.3s ease; }
+    .music-img { position: absolute; top: -45px; left: -30px; max-width: 110px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(-10deg); transition: all 0.3s ease; }
 
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
 
     /* 日曆週橫幅 */
     .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
-    .calendar-week-banner { grid-column: span 7; background-color: rgba(214, 194, 169, 0.25); color: var(--text-main); font-size: 0.85rem; font-weight: bold; text-align: center; padding: 5px 0; border-radius: 6px; margin-top: 8px; margin-bottom: 2px; }
+    .calendar-week-banner { grid-column: span 7; background-color: rgba(214, 194, 169, 0.25); color: var(--text-main); font-size: 0.85rem; font-weight: bold; text-align: center; padding: 5px 0; border-radius: 6px; margin-top: 8px; margin-bottom: 2px; letter-spacing: 1px; }
 
     .calendar-day { min-height: 85px; border: 1px solid rgba(226, 211, 193, 0.2); border-radius: 8px; padding: 5px 2px; cursor: pointer; display: flex; flex-direction: column; }
     .calendar-day-num { font-size: 0.85rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
@@ -75,7 +78,7 @@
     .calendar-day.selected { border: 2px solid var(--accent-dark); background: rgba(252, 250, 247, 1); }
     .event-bar { font-size: 10px; padding: 3px 5px; border-radius: 5px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4A443F; border-left: 3px solid rgba(0,0,0,0.1); }
 
-    /* 圖庫專區 (跑馬燈) - 修改為 4:3 比例 */
+    /* 圖庫專區 (4:3) */
     .gallery-carousel { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scroll-snap-type: x mandatory; }
     .photo-card { position: relative; flex: 0 0 200px; height: 150px; border-radius: 12px; overflow: hidden; scroll-snap-align: start; background: #eee; }
     .photo-card img { width: 100%; height: 100%; object-fit: cover; }
@@ -96,9 +99,23 @@
 
     /* 統計列表清單 */
     .records-scroll-container { max-height: 480px; overflow-y: auto; }
+    .records-scroll-container::-webkit-scrollbar { width: 6px; }
+    .records-scroll-container::-webkit-scrollbar-track { background: transparent; }
+    .records-scroll-container::-webkit-scrollbar-thumb { background: var(--accent-dark); border-radius: 10px; }
     .record-card { padding: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
-    .action-group { display: flex; gap: 10px; }
-    .edit-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--accent-dark); }
+    .edit-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-light); }
+
+    /* 總額開關按鈕區 */
+    .total-summary-container { margin-top: 20px; text-align: center; }
+    .toggle-total-btn { background: var(--accent-color); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+    .total-summary-row { display: none; background: #5C544D; color: #FFF; padding: 20px; border-radius: 16px; margin-top: 15px; justify-content: space-between; align-items: center; }
+
+    /* 手機版縮放 */
+    @media (max-width: 600px) {
+      .congrats-img { max-width: 90px; top: -35px; right: -10px; }
+      .music-img { max-width: 80px; top: -30px; left: -15px; }
+      .countdown-display { font-size: 2.2rem; } 
+    }
   </style>
 </head>
 <body>
@@ -130,8 +147,7 @@
 
       <section class="gallery-section">
         <h3 style="font-size:1rem; margin-bottom:15px;">李龍龍即時觀測</h3>
-        <div id="gallery-carousel" class="gallery-carousel">
-          </div>
+        <div id="gallery-carousel" class="gallery-carousel"></div>
         <div style="margin-top:15px; border-top:1px dashed #E2D3C1; padding-top:15px;">
           <div style="display:flex; gap:10px;">
             <select id="upload-week" class="form-control" style="width:100px;">
@@ -149,8 +165,8 @@
       <section class="form-section" id="form-area">
         <img src="music.png" alt="Music" class="music-img" onerror="this.style.display='none'">
         <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-          <span style="font-weight:bold;">新增紀錄</span>
-          <input type="date" id="input-date" class="form-control" style="width:auto; padding:5px;" onchange="highlightSelectedDate()">
+          <span style="font-weight:bold; position: relative; z-index: 1;">新增紀錄</span>
+          <input type="date" id="input-date" class="form-control" style="width:auto; padding:5px; position: relative; z-index: 1;" onchange="highlightSelectedDate()">
         </div>
         
         <div class="input-group">
@@ -187,9 +203,9 @@
       <h2 style="text-align:center; font-size:1.1rem; margin:20px 0;">將將將！這裡會統計一切！</h2>
       <div id="records-container" class="records-scroll-container"></div>
       
-      <div class="total-summary-container" style="text-align:center; margin-top:20px;">
-        <button id="toggle-total-btn" class="toggle-total-btn" style="background:var(--accent-color); color:white; border:none; padding:10px 25px; border-radius:25px; cursor:pointer;" onclick="toggleTotalSection()">＼按我／</button>
-        <div id="total-summary-row" style="display:none; background:#5C544D; color:#FFF; padding:20px; border-radius:16px; margin-top:15px; justify-content:space-between; align-items:center;">
+      <div class="total-summary-container">
+        <button id="toggle-total-btn" class="toggle-total-btn" onclick="toggleTotalSection()">＼按我／</button>
+        <div id="total-summary-row" class="total-summary-row">
           <span>費用總計</span>
           <span style="font-size:1.5rem; font-weight:bold;">NT$ <span id="grand-total-amount">0</span></span>
         </div>
@@ -224,7 +240,6 @@
   </div>
 
   <script>
-    // Firebase 設定
     const firebaseConfig = {
       apiKey: "AIzaSyCOIXXR5d87zUf1o072xg-lPWsrFqVXH98",
       authDomain: "dragonlee-9f43c.firebaseapp.com",
@@ -252,14 +267,12 @@
       const now = new Date();
       document.getElementById('input-date').value = now.toISOString().split('T')[0];
       
-      // 計算倒數
       const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const targetDate = new Date(dueYear, dueMonth, dueDateNum);
       const diffDays = Math.ceil((targetDate - todayDate) / (1000 * 60 * 60 * 24));
       startCounterAnimation('countdown-timer', diffDays);
       setupColorPickers();
 
-      // Firebase 紀錄監聽
       dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         records = data ? Object.values(data) : [];
@@ -267,21 +280,19 @@
         renderRecords();
       });
 
-      // Firebase 圖庫監聽
       galleryRef.on('value', (snapshot) => {
         const photos = snapshot.val();
         renderGallery(photos);
       });
     }
 
-    // 限制日曆切換 (2026/12 封頂)
+    
     function changeMonth(n) {
       let tempMonth = currentMonth + n;
       let tempYear = currentYear;
       if (tempMonth < 0) { tempMonth = 11; tempYear--; }
       else if (tempMonth > 11) { tempMonth = 0; tempYear++; }
 
-      // 檢查是否超過 2026/12
       if (tempYear > 2026) return;
       if (tempYear === 2026 && tempMonth > 11) return;
 
@@ -295,7 +306,7 @@
       const file = input.files[0];
       if (!file) return;
       if (file.size > 1024 * 1024) {
-        input.value = ""; // 清空輸入框
+        input.value = ""; 
         return alert("檔案太大囉！請限制在 1MB 以內。");
       }
 
@@ -307,10 +318,9 @@
           week: week,
           src: e.target.result
         };
-        // 寫入 Firebase 後觸發成功訊息
         galleryRef.child(photoData.id).set(photoData).then(() => {
           alert("上傳成功！");
-          input.value = ""; // 清空上傳欄位，方便下次上傳
+          input.value = ""; 
         }).catch((error) => {
           alert("上傳失敗：" + error.message);
         });
@@ -337,7 +347,6 @@
       if(confirm("要刪除這張照片嗎？")) galleryRef.child(id).remove();
     }
 
-    // 日曆渲染
     function renderCalendar() {
       const container = document.getElementById('calendar-days');
       const inputDate = document.getElementById('input-date').value;
@@ -389,7 +398,6 @@
       }
     }
 
-    // 紀錄清單渲染
     function renderRecords() {
       const container = document.getElementById('records-container');
       container.innerHTML = '';
@@ -407,7 +415,8 @@
             </div>
           </div>`;
       });
-      updateTotalDisplay();
+      // 在背景更新文字，避免畫面閃爍
+      updateTotalDisplay(false); 
     }
 
     // 通用功能
@@ -457,21 +466,35 @@
       document.getElementById('input-content').value = ""; document.getElementById('input-cost').value = ""; document.getElementById('input-note').value = "";
     }
 
-    function updateTotalDisplay() {
+    // ★ 修復：加入參數決定是否需要滾動動畫 ★
+    function updateTotalDisplay(animate = false) {
       if(document.getElementById('total-summary-row').style.display === 'flex') {
         const total = records.reduce((sum, r) => sum + (r.cost || 0), 0);
-        document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+        if (animate) {
+          startCounterAnimation('grand-total-amount', total);
+        } else {
+          document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+        }
       }
     }
 
+    
     function toggleTotalSection() {
       const row = document.getElementById('total-summary-row');
       const btn = document.getElementById('toggle-total-btn');
-      if (row.style.display === 'flex') { row.style.display = 'none'; btn.innerText = '＼按我／'; }
-      else { row.style.display = 'flex'; btn.innerText = '\\ 趕快收起來 /'; updateTotalDisplay(); }
+      if (row.style.display === 'flex') { 
+        row.style.display = 'none'; 
+        btn.innerText = '＼按我／'; 
+      } else { 
+        row.style.display = 'flex'; 
+        btn.innerText = '\\ 趕快收起來 /'; 
+        updateTotalDisplay(true); 
+      }
     }
 
     function quickFill(t, c) { document.getElementById('input-content').value = t; selectedFormColor = c; }
+    
+   
     function startCounterAnimation(id, target) {
       const el = document.getElementById(id); let startTime = null;
       const step = (ts) => {
@@ -482,6 +505,7 @@
       };
       requestAnimationFrame(step);
     }
+    
     function highlightSelectedDate() { const v = new Date(document.getElementById('input-date').value); currentYear=v.getFullYear(); currentMonth=v.getMonth(); renderCalendar(); }
 
     init();
