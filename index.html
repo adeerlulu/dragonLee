@@ -26,6 +26,7 @@
       --accent-dark: #C9B8A3;
       --danger-color: #DDA7A5; 
       --today-color: #D6C2A9;
+      --success-color: #9ab999;
       --color-1: #E2D3C1; --color-2: #D4E2D9; --color-3: #D6E0E9; --color-4: #E9D7D7; --color-5: #EFE5D3;
     }
 
@@ -48,7 +49,6 @@
     .logo-container { text-align: center; padding-top: 25px; margin-bottom: clamp(40px, 15vw, 100px); }
     .main-logo { width: 85%; max-width: 400px; height: auto; }
 
-   
     .header-section, .calendar-section, .form-section, .record-card, .gallery-section {
       background: var(--card-bg) !important;
       backdrop-filter: blur(8px);
@@ -58,18 +58,17 @@
       padding: 20px;
     }
 
-    
     .header-section { text-align: center; position: relative; } 
-    .form-section { position: relative; } 
-
-    .congrats-img { position: absolute; top: -50px; right: -30px; max-width: 140px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(8deg); transition: all 0.3s ease; }
-    .music-img { position: absolute; top: -45px; left: -30px; max-width: 110px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(-10deg); transition: all 0.3s ease; }
+    .congrats-img { position: absolute; top: -50px; right: -30px; max-width: 140px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(8deg); }
+    .music-img { position: absolute; top: -45px; left: -30px; max-width: 110px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(-10deg); }
 
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
 
-    /* 日曆週橫幅 */
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 10px; }
     .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    
     .calendar-week-banner { grid-column: span 7; background-color: rgba(214, 194, 169, 0.25); color: var(--text-main); font-size: 0.85rem; font-weight: bold; text-align: center; padding: 5px 0; border-radius: 6px; margin-top: 8px; margin-bottom: 2px; letter-spacing: 1px; }
 
     .calendar-day { min-height: 85px; border: 1px solid rgba(226, 211, 193, 0.2); border-radius: 8px; padding: 5px 2px; cursor: pointer; display: flex; flex-direction: column; }
@@ -78,39 +77,42 @@
     .calendar-day.selected { border: 2px solid var(--accent-dark); background: rgba(252, 250, 247, 1); }
     .event-bar { font-size: 10px; padding: 3px 5px; border-radius: 5px; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #4A443F; border-left: 3px solid rgba(0,0,0,0.1); }
 
-    /* 圖庫專區 (4:3) */
-    .gallery-carousel { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scroll-snap-type: x mandatory; }
-    .photo-card { position: relative; flex: 0 0 200px; height: 150px; border-radius: 12px; overflow: hidden; scroll-snap-align: start; background: #eee; }
+    /* 圖庫專區 (無限跑馬燈與 4:3 比例) */
+    .gallery-carousel { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 10px; scrollbar-width: none; }
+    .gallery-carousel::-webkit-scrollbar { display: none; }
+    .photo-card { position: relative; flex: 0 0 200px; height: 150px; border-radius: 12px; overflow: hidden; background: #eee; cursor: pointer; transition: transform 0.2s; }
+    .photo-card:active { transform: scale(0.95); }
     .photo-card img { width: 100%; height: 100%; object-fit: cover; }
-    .week-pill { position: absolute; top: 8px; left: 8px; background: var(--accent-color); color: #fff; font-size: 0.7rem; font-weight: bold; padding: 3px 10px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-    .delete-photo { position: absolute; top: 5px; right: 5px; background: rgba(255,255,255,0.8); border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; cursor: pointer; }
+    .week-pill { position: absolute; top: 8px; left: 8px; background: var(--accent-color); color: #fff; font-size: 0.7rem; font-weight: bold; padding: 3px 10px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; pointer-events: none; }
 
     /* 表單樣式 */
     .input-group { margin-bottom: 18px; }
     .input-group label { display: block; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px; }
     .form-control { width: 100%; padding: 12px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; outline: none; }
     .btn-quick { padding: 4px 12px; background: #fff; border: 1.5px solid var(--accent-color); border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
-    .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    
+    /* 上傳按鈕加入了過場動畫 */
+    .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background-color 0.3s ease, transform 0.1s; }
+    .btn-submit:active { transform: scale(0.98); }
 
     /* 彈窗 */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92, 84, 77, 0.4); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
     .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; animation: modalPop 0.3s ease-out; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .btn-close { background: none; border: none; font-size: 1.5rem; color: var(--text-light); cursor: pointer; line-height: 1; }
     @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    /* 統計列表清單 */
-    .records-scroll-container { max-height: 480px; overflow-y: auto; }
+    .records-scroll-container { max-height: 480px; overflow-y: auto; padding-right: 5px; }
     .records-scroll-container::-webkit-scrollbar { width: 6px; }
     .records-scroll-container::-webkit-scrollbar-track { background: transparent; }
     .records-scroll-container::-webkit-scrollbar-thumb { background: var(--accent-dark); border-radius: 10px; }
-    .record-card { padding: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
-    .edit-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-light); }
 
-    /* 總額開關按鈕區 */
     .total-summary-container { margin-top: 20px; text-align: center; }
     .toggle-total-btn { background: var(--accent-color); color: white; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold; }
     .total-summary-row { display: none; background: #5C544D; color: #FFF; padding: 20px; border-radius: 16px; margin-top: 15px; justify-content: space-between; align-items: center; }
+    .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; margin-bottom: 10px;}
+    .edit-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-light); }
 
-    /* 手機版縮放 */
     @media (max-width: 600px) {
       .congrats-img { max-width: 90px; top: -35px; right: -10px; }
       .music-img { max-width: 80px; top: -30px; left: -15px; }
@@ -129,7 +131,7 @@
 
       <header class="header-section">
         <img src="congrats.png" alt="Congrats" class="congrats-img" onerror="this.style.display='none'">
-        <h1 style="font-size:0.9rem; color:var(--text-light); margin-bottom:5px; font-weight:normal;">距離李龍龍(暫)降臨</h1>
+        <h1 style="font-size:0.9rem; color:var(--text-light); margin-bottom:5px; font-weight:normal; letter-spacing:1px;">距離李龍龍(暫)降臨</h1>
         <div class="countdown-display" id="countdown-timer">0<span>天</span></div>
       </header>
 
@@ -146,7 +148,7 @@
       </section>
 
       <section class="gallery-section">
-        <h3 style="font-size:1rem; margin-bottom:15px;">李龍龍即時觀測</h3>
+        <h3 style="font-size:1rem; margin-bottom:15px; font-weight:bold;">李龍龍即時觀測</h3>
         <div id="gallery-carousel" class="gallery-carousel"></div>
         <div style="margin-top:15px; border-top:1px dashed #E2D3C1; padding-top:15px;">
           <div style="display:flex; gap:10px;">
@@ -157,46 +159,37 @@
               <option value="W20">W20</option><option value="W30">W30</option><option value="W38">W38</option>
             </select>
             <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
-            <button class="btn-submit" style="margin:0; flex:1; padding:10px;" onclick="document.getElementById('photo-input').click()">上傳照片 (1MB內)</button>
+            <button id="upload-btn" class="btn-submit" style="margin:0; flex:1; padding:10px;" onclick="document.getElementById('photo-input').click()">上傳照片 (1MB內)</button>
           </div>
         </div>
       </section>
 
       <section class="form-section" id="form-area">
         <img src="music.png" alt="Music" class="music-img" onerror="this.style.display='none'">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-          <span style="font-weight:bold; position: relative; z-index: 1;">新增紀錄</span>
+        <div class="form-header">
+          <span style="font-weight: bold; position: relative; z-index: 1;">新增紀錄</span>
           <input type="date" id="input-date" class="form-control" style="width:auto; padding:5px; position: relative; z-index: 1;" onchange="highlightSelectedDate()">
         </div>
-        
         <div class="input-group">
           <label>標籤色</label>
-          <div id="form-color-picker" style="display:flex; gap:12px;">
-            <div class="color-opt active" style="background:var(--color-1); width:28px; height:28px; border-radius:50%;" data-color="var(--color-1)"></div>
-            <div class="color-opt" style="background:var(--color-2); width:28px; height:28px; border-radius:50%;" data-color="var(--color-2)"></div>
-            <div class="color-opt" style="background:var(--color-3); width:28px; height:28px; border-radius:50%;" data-color="var(--color-3)"></div>
-            <div class="color-opt" style="background:var(--color-4); width:28px; height:28px; border-radius:50%;" data-color="var(--color-4)"></div>
-            <div class="color-opt" style="background:var(--color-5); width:28px; height:28px; border-radius:50%;" data-color="var(--color-5)"></div>
+          <div class="color-picker" id="form-color-picker">
+            <div class="color-opt active" style="background:var(--color-1)" data-color="var(--color-1)"></div>
+            <div class="color-opt" style="background:var(--color-2)" data-color="var(--color-2)"></div>
+            <div class="color-opt" style="background:var(--color-3)" data-color="var(--color-3)"></div>
+            <div class="color-opt" style="background:var(--color-4)" data-color="var(--color-4)"></div>
+            <div class="color-opt" style="background:var(--color-5)" data-color="var(--color-5)"></div>
           </div>
         </div>
-
         <div class="input-group">
           <label>今日行程</label>
           <input type="text" id="input-content" class="form-control" placeholder="輸入內容">
-          <div style="display:flex; gap:10px; margin-top:10px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
             <button class="btn-quick" onclick="quickFill('產檢', 'var(--color-2)')">＋ 產檢</button>
             <button class="btn-quick" onclick="quickFill('媽媽教室', 'var(--color-5)')">＋ 媽媽教室</button>
           </div>
         </div>
-
-        <div class="input-group">
-          <label>費用</label>
-          <input type="number" id="input-cost" class="form-control" placeholder="$" min="0">
-        </div>
-        <div class="input-group">
-          <label>Murmur... (只能唸 30 字)</label>
-          <textarea id="input-note" class="form-control" maxlength="30" rows="2"></textarea>
-        </div>
+        <div class="input-group"><label>費用</label><input type="number" id="input-cost" class="form-control" placeholder="$" min="0"></div>
+        <div class="input-group"><label>Murmur... (只能唸 30 字)</label><textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="盡情Murmur...."></textarea></div>
         <button class="btn-submit" onclick="saveRecord()">上傳紀錄</button>
       </section>
 
@@ -215,10 +208,7 @@
 
   <div class="modal-overlay" id="edit-modal">
     <div class="modal-content">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3>編輯資料</h3>
-        <button onclick="closeModal()" style="background:none; border:none; font-size:1.5rem;">×</button>
-      </div>
+      <div class="modal-header"><h3>編輯資料</h3><button class="btn-close" onclick="closeModal()">×</button></div>
       <div class="input-group">
         <label>標籤色</label>
         <div id="modal-color-picker" style="display:flex; gap:10px;">
@@ -232,9 +222,31 @@
       <div class="input-group"><label>今日行程</label><input type="text" id="modal-content" class="form-control"></div>
       <div class="input-group"><label>費用</label><input type="number" id="modal-cost" class="form-control" min="0"></div>
       <div class="input-group"><label>Murmur...</label><textarea id="modal-note" class="form-control" maxlength="30"></textarea></div>
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
         <button class="btn-submit" onclick="updateFromModal()">儲存</button>
         <button class="btn-submit" style="background:var(--danger-color);" onclick="deleteFromModal()">刪除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="photo-modal">
+    <div class="modal-content">
+      <div class="modal-header"><h3>編輯照片</h3><button class="btn-close" onclick="closePhotoModal()">×</button></div>
+      <div style="text-align:center; margin-bottom:15px;">
+        <img id="photo-modal-img" src="" style="max-width:100%; max-height:200px; border-radius:8px; object-fit:cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+      </div>
+      <div class="input-group">
+        <label>修改週數</label>
+        <select id="photo-modal-week" class="form-control">
+          <option value="W1">W1</option><option value="W2">W2</option><option value="W3">W3</option><option value="W4">W4</option><option value="W5">W5</option>
+          <option value="W6">W6</option><option value="W7">W7</option><option value="W8">W8</option><option value="W9">W9</option><option value="W10">W10</option>
+          <option value="W11">W11</option><option value="W12">W12</option><option value="W13">W13</option><option value="W14">W14</option><option value="W15">W15</option>
+          <option value="W20">W20</option><option value="W30">W30</option><option value="W38">W38</option>
+        </select>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="btn-submit" onclick="savePhotoWeek()">儲存修改</button>
+        <button class="btn-submit" style="background:var(--danger-color);" onclick="deletePhotoFromModal()">刪除照片</button>
       </div>
     </div>
   </div>
@@ -257,104 +269,150 @@
 
     const dueYear = 2026; const dueMonth = 11; const dueDateNum = 14;
     let records = []; 
-    let currentYear = new Date().getFullYear(); 
-    let currentMonth = new Date().getMonth();
-    let selectedFormColor = "var(--color-1)"; 
-    let selectedModalColor = "var(--color-1)"; 
+    let photosData = []; // 暫存雲端抓下來的照片陣列
+    let currentYear = new Date().getFullYear(); let currentMonth = new Date().getMonth();
+    let selectedFormColor = "var(--color-1)"; let selectedModalColor = "var(--color-1)"; 
     let editingId = null;
+    let editingPhotoId = null;
+
+    // 跑馬燈控制變數
+    let galleryScrollReq;
+    let isHoveringGallery = false;
 
     function init() {
-      const now = new Date();
-      document.getElementById('input-date').value = now.toISOString().split('T')[0];
-      
+      const now = new Date(); document.getElementById('input-date').value = now.toISOString().split('T')[0];
       const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       const targetDate = new Date(dueYear, dueMonth, dueDateNum);
       const diffDays = Math.ceil((targetDate - todayDate) / (1000 * 60 * 60 * 24));
-      startCounterAnimation('countdown-timer', diffDays);
+      startCounterAnimation('countdown-timer', diffDays); 
       setupColorPickers();
 
       dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         records = data ? Object.values(data) : [];
-        renderCalendar(); 
-        renderRecords();
+        renderCalendar(); renderRecords();
       });
 
       galleryRef.on('value', (snapshot) => {
-        const photos = snapshot.val();
-        renderGallery(photos);
+        const photosObj = snapshot.val();
+        renderGallery(photosObj);
       });
+
+      // 監聽相簿區塊，滑鼠或手指碰到時暫停滾動
+      const galleryEl = document.getElementById('gallery-carousel');
+      galleryEl.addEventListener('mouseenter', () => isHoveringGallery = true);
+      galleryEl.addEventListener('mouseleave', () => isHoveringGallery = false);
+      galleryEl.addEventListener('touchstart', () => isHoveringGallery = true);
+      galleryEl.addEventListener('touchend', () => isHoveringGallery = false);
+      
+      // 啟動無限跑馬燈
+      autoScrollGallery();
     }
 
-    
+    // ★ 無限跑馬燈邏輯 ★
+    function autoScrollGallery() {
+      const container = document.getElementById('gallery-carousel');
+      if (container && !isHoveringGallery && photosData.length > 0) {
+        container.scrollLeft += 0.8; // 滾動速度
+
+        // 算出原始資料的寬度 (總寬度除以重複次數)
+        const repeatCount = photosData.length < 3 ? 4 : 2;
+        const singleSetWidth = container.scrollWidth / repeatCount;
+        
+        // 當滾動超過一組原始資料時，無縫接軌切回開頭
+        if (container.scrollLeft >= singleSetWidth) {
+          container.scrollLeft -= singleSetWidth; 
+        }
+      }
+      galleryScrollReq = requestAnimationFrame(autoScrollGallery);
+    }
+
     function changeMonth(n) {
-      let tempMonth = currentMonth + n;
-      let tempYear = currentYear;
-      if (tempMonth < 0) { tempMonth = 11; tempYear--; }
-      else if (tempMonth > 11) { tempMonth = 0; tempYear++; }
-
-      if (tempYear > 2026) return;
-      if (tempYear === 2026 && tempMonth > 11) return;
-
-      currentMonth = tempMonth;
-      currentYear = tempYear;
-      renderCalendar();
+      let tempMonth = currentMonth + n; let tempYear = currentYear;
+      if (tempMonth < 0) { tempMonth = 11; tempYear--; } else if (tempMonth > 11) { tempMonth = 0; tempYear++; }
+      if (tempYear > 2026 || (tempYear === 2026 && tempMonth > 11)) return;
+      currentMonth = tempMonth; currentYear = tempYear; renderCalendar();
     }
 
-    // 超音波圖庫處理
+    // ★ 上傳照片與按鈕回饋 ★
     function handlePhotoUpload(input) {
       const file = input.files[0];
       if (!file) return;
-      if (file.size > 1024 * 1024) {
-        input.value = ""; 
-        return alert("檔案太大囉！請限制在 1MB 以內。");
-      }
+      if (file.size > 1024 * 1024) { input.value = ""; return alert("檔案太大囉！請限制在 1MB 以內。"); }
 
       const week = document.getElementById('upload-week').value;
       const reader = new FileReader();
+      const btn = document.getElementById('upload-btn'); // 抓取上傳按鈕
+
       reader.onload = function(e) {
-        const photoData = {
-          id: Date.now(),
-          week: week,
-          src: e.target.result
-        };
+        const photoData = { id: Date.now(), week: week, src: e.target.result };
         galleryRef.child(photoData.id).set(photoData).then(() => {
-          alert("上傳成功！");
+          
+          // 上傳成功：改變按鈕狀態，不使用跳窗
+          btn.innerText = "上傳成功！ ✔";
+          btn.style.backgroundColor = "var(--success-color)";
           input.value = ""; 
-        }).catch((error) => {
-          alert("上傳失敗：" + error.message);
-        });
+          
+          // 2.5秒後恢復原狀
+          setTimeout(() => {
+            btn.innerText = "上傳照片 (1MB內)";
+            btn.style.backgroundColor = "var(--accent-color)";
+          }, 2500);
+
+        }).catch((error) => alert("上傳失敗：" + error.message));
       };
       reader.readAsDataURL(file);
     }
 
-    function renderGallery(photos) {
+    function renderGallery(photosObj) {
       const container = document.getElementById('gallery-carousel');
       container.innerHTML = '';
-      if (!photos) return;
-      Object.values(photos).sort((a,b) => a.id - b.id).forEach(p => {
-        container.innerHTML += `
-          <div class="photo-card">
+      photosData = photosObj ? Object.values(photosObj).sort((a,b) => a.id - b.id) : [];
+      if (photosData.length === 0) return;
+
+      let htmlContent = '';
+      photosData.forEach(p => {
+        htmlContent += `
+          <div class="photo-card" onclick="openPhotoModal(${p.id})">
             <div class="week-pill">${p.week}</div>
-            <button class="delete-photo" onclick="deletePhoto(${p.id})">×</button>
             <img src="${p.src}" alt="Baby Ultrasound">
           </div>
         `;
       });
-    }
 
-    function deletePhoto(id) {
-      if(confirm("要刪除這張照片嗎？")) galleryRef.child(id).remove();
-    }
-
-    function renderCalendar() {
-      const container = document.getElementById('calendar-days');
-      const inputDate = document.getElementById('input-date').value;
-      document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`;
-      container.innerHTML = '';
+      // 為了達成無限滾動，如果照片很少就複製 4 份，多的話複製 2 份串接
+      const repeatCount = photosData.length < 3 ? 4 : 2;
+      let finalHtml = '';
+      for(let i=0; i<repeatCount; i++) finalHtml += htmlContent;
       
-      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      container.innerHTML = finalHtml;
+    }
+
+    // ★ 照片編輯相關功能 ★
+    function openPhotoModal(id) {
+      const p = photosData.find(x => x.id === id);
+      if(!p) return;
+      editingPhotoId = id;
+      document.getElementById('photo-modal-img').src = p.src;
+      document.getElementById('photo-modal-week').value = p.week;
+      document.getElementById('photo-modal').style.display = 'flex';
+    }
+    function closePhotoModal() { document.getElementById('photo-modal').style.display = 'none'; }
+    function savePhotoWeek() {
+      const newWeek = document.getElementById('photo-modal-week').value;
+      galleryRef.child(editingPhotoId).update({ week: newWeek }).then(() => closePhotoModal());
+    }
+    function deletePhotoFromModal() {
+      if(confirm("確定要刪除這張寶寶照片嗎？")) {
+        galleryRef.child(editingPhotoId).remove().then(() => closePhotoModal());
+      }
+    }
+
+    // 行程日曆渲染
+    function renderCalendar() {
+      const container = document.getElementById('calendar-days'); const inputDate = document.getElementById('input-date').value;
+      document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`; container.innerHTML = '';
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay(); const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
       const totalWeeks = Math.ceil((firstDay + daysInMonth) / 7);
 
       for (let week = 0; week < totalWeeks; week++) {
@@ -366,60 +424,45 @@
 
         if (weekNum > 0) {
           const wBanner = document.createElement('div');
-          wBanner.className = 'calendar-week-banner';
-          wBanner.innerText = `W${weekNum}`;
+          wBanner.className = 'calendar-week-banner'; wBanner.innerText = `W${weekNum}`;
           container.appendChild(wBanner);
         }
 
         for (let i = 0; i < 7; i++) {
-          const dayOffset = week * 7 + i;
-          const dateNum = dayOffset - firstDay + 1;
+          const dayOffset = week * 7 + i; const dateNum = dayOffset - firstDay + 1;
           if (dateNum <= 0 || dateNum > daysInMonth) {
-            const emptyDiv = document.createElement('div');
-            emptyDiv.className = 'calendar-day empty';
-            emptyDiv.style.visibility = 'hidden';
-            container.appendChild(emptyDiv);
+            const emptyDiv = document.createElement('div'); emptyDiv.className = 'calendar-day empty'; emptyDiv.style.visibility = 'hidden'; container.appendChild(emptyDiv);
           } else {
             const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dateNum).padStart(2, '0')}`;
-            const div = document.createElement('div');
-            div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
+            const div = document.createElement('div'); div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
             if(new Date().toDateString() === new Date(currentYear, currentMonth, dateNum).toDateString()) div.classList.add('today');
             div.innerHTML = `<div class="calendar-day-num">${dateNum}</div>`;
             records.filter(r => r.date === dateStr).forEach(r => {
-              const bar = document.createElement('div');
-              bar.className = 'event-bar'; bar.style.backgroundColor = r.color; bar.innerText = r.content;
-              bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); };
-              div.appendChild(bar);
+              const bar = document.createElement('div'); bar.className = 'event-bar'; bar.style.backgroundColor = r.color; bar.innerText = r.content;
+              bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); }; div.appendChild(bar);
             });
-            div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); };
-            container.appendChild(div);
+            div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); }; container.appendChild(div);
           }
         }
       }
     }
 
     function renderRecords() {
-      const container = document.getElementById('records-container');
-      container.innerHTML = '';
+      const container = document.getElementById('records-container'); container.innerHTML = '';
       records.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(r => {
         container.innerHTML += `
           <div class="record-card" style="border-left-color:${r.color};">
-            <div style="flex:1;">
-              <small>${r.date}</small><br>
-              <b style="font-size:1.05rem;">${r.content}</b><br>
-              ${r.note ? `<span class="note-text" style="font-size:0.85rem; color:var(--text-light); italic; background:#FDFBF8; padding:2px 5px; border-radius:5px;">${r.note}</span>` : ''}
-            </div>
+            <div style="flex:1;"><small>${r.date}</small><br><b style="font-size:1.05rem;">${r.content}</b><br>${r.note ? `<span class="note-text" style="font-size:0.85rem; color:var(--text-light); italic; background:#FDFBF8; padding:2px 5px; border-radius:5px;">${r.note}</span>` : ''}</div>
             <div style="text-align:right;">
               <div style="color:var(--danger-color); font-weight:bold; margin-bottom:5px;">$${(r.cost || 0).toLocaleString()}</div>
               <button class="edit-btn" onclick="openEditModal(${r.id})">✎</button>
             </div>
           </div>`;
       });
-      // 在背景更新文字，避免畫面閃爍
       updateTotalDisplay(false); 
     }
 
-    // 通用功能
+    // 行程編輯表單
     function setupColorPickers() {
       document.querySelectorAll('#form-color-picker .color-opt').forEach(opt => {
         opt.onclick = () => { document.querySelectorAll('#form-color-picker .color-opt').forEach(o => o.style.border="none"); opt.style.border="2px solid var(--text-main)"; selectedFormColor = opt.getAttribute('data-color'); };
@@ -430,71 +473,40 @@
     }
 
     function openEditModal(id) {
-      const r = records.find(item => item.id === id);
-      if(!r) return;
-      editingId = id;
-      document.getElementById('modal-content').value = r.content;
-      document.getElementById('modal-cost').value = r.cost || "";
-      document.getElementById('modal-note').value = r.note || "";
-      selectedModalColor = r.color;
+      const r = records.find(item => item.id === id); if(!r) return; editingId = id;
+      document.getElementById('modal-content').value = r.content; document.getElementById('modal-cost').value = r.cost || "";
+      document.getElementById('modal-note').value = r.note || ""; selectedModalColor = r.color;
       document.getElementById('edit-modal').style.display = 'flex';
     }
-
     function closeModal() { document.getElementById('edit-modal').style.display = 'none'; }
-
     function updateFromModal() {
-      const idx = records.findIndex(r => r.id === editingId);
-      records[idx].content = document.getElementById('modal-content').value.trim();
-      records[idx].cost = Math.max(0, parseInt(document.getElementById('modal-cost').value) || 0);
-      records[idx].note = document.getElementById('modal-note').value.trim();
-      records[idx].color = selectedModalColor;
-      dbRef.set(records); closeModal();
+      const idx = records.findIndex(r => r.id === editingId); records[idx].content = document.getElementById('modal-content').value.trim();
+      records[idx].cost = Math.max(0, parseInt(document.getElementById('modal-cost').value) || 0); records[idx].note = document.getElementById('modal-note').value.trim();
+      records[idx].color = selectedModalColor; if(!records[idx].content) { alert("請輸入今日行程"); return; } dbRef.set(records); closeModal();
     }
-
-    function deleteFromModal() {
-      if(confirm("確定要刪除嗎？")) { records = records.filter(r => r.id !== editingId); dbRef.set(records); closeModal(); }
-    }
-
+    function deleteFromModal() { if(confirm("確定要刪除嗎？")) { records = records.filter(r => r.id !== editingId); dbRef.set(records); closeModal(); } }
     function saveRecord() {
-      const content = document.getElementById('input-content').value.trim();
-      const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0);
-      const note = document.getElementById('input-note').value.trim();
-      const date = document.getElementById('input-date').value;
-      if(!content) return alert("請輸入內容");
-      records.push({ id: Date.now(), date, content, cost, note, color: selectedFormColor });
-      dbRef.set(records);
-      document.getElementById('input-content').value = ""; document.getElementById('input-cost').value = ""; document.getElementById('input-note').value = "";
+      const content = document.getElementById('input-content').value.trim(); const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0);
+      const note = document.getElementById('input-note').value.trim(); const date = document.getElementById('input-date').value;
+      if(!content) return alert("請輸入內容"); records.push({ id: Date.now(), date, content, cost, note, color: selectedFormColor });
+      dbRef.set(records); document.getElementById('input-content').value = ""; document.getElementById('input-cost').value = ""; document.getElementById('input-note').value = "";
     }
 
-    // ★ 修復：加入參數決定是否需要滾動動畫 ★
+    // 總額展開與動畫
     function updateTotalDisplay(animate = false) {
       if(document.getElementById('total-summary-row').style.display === 'flex') {
         const total = records.reduce((sum, r) => sum + (r.cost || 0), 0);
-        if (animate) {
-          startCounterAnimation('grand-total-amount', total);
-        } else {
-          document.getElementById('grand-total-amount').innerText = total.toLocaleString();
-        }
+        if (animate) startCounterAnimation('grand-total-amount', total);
+        else document.getElementById('grand-total-amount').innerText = total.toLocaleString();
       }
     }
-
-    
     function toggleTotalSection() {
-      const row = document.getElementById('total-summary-row');
-      const btn = document.getElementById('toggle-total-btn');
-      if (row.style.display === 'flex') { 
-        row.style.display = 'none'; 
-        btn.innerText = '＼按我／'; 
-      } else { 
-        row.style.display = 'flex'; 
-        btn.innerText = '\\ 趕快收起來 /'; 
-        updateTotalDisplay(true); 
-      }
+      const row = document.getElementById('total-summary-row'); const btn = document.getElementById('toggle-total-btn');
+      if (row.style.display === 'flex') { row.style.display = 'none'; btn.innerText = '＼按我／'; }
+      else { row.style.display = 'flex'; btn.innerText = '\\ 趕快收起來 /'; updateTotalDisplay(true); }
     }
-
     function quickFill(t, c) { document.getElementById('input-content').value = t; selectedFormColor = c; }
     
-   
     function startCounterAnimation(id, target) {
       const el = document.getElementById(id); let startTime = null;
       const step = (ts) => {
@@ -505,9 +517,7 @@
       };
       requestAnimationFrame(step);
     }
-    
     function highlightSelectedDate() { const v = new Date(document.getElementById('input-date').value); currentYear=v.getFullYear(); currentMonth=v.getMonth(); renderCalendar(); }
-
     init();
   </script>
 </body>
