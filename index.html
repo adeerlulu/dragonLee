@@ -42,17 +42,8 @@
     .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
     .container { max-width: 600px; margin: 0 auto; padding: 15px; position: relative; }
 
-    /* Logo 響應式設定 */
-    .logo-container { 
-      text-align: center; 
-      padding-top: 25px; 
-      margin-bottom: clamp(40px, 15vw, 100px); 
-    }
-    .main-logo { 
-      width: 85%;           
-      max-width: 400px;     
-      height: auto; 
-    }
+    .logo-container { text-align: center; padding-top: 25px; margin-bottom: clamp(40px, 15vw, 100px); }
+    .main-logo { width: 85%; max-width: 400px; height: auto; }
 
     .header-section, .calendar-section, .form-section, .record-card {
       background: var(--card-bg) !important;
@@ -65,15 +56,8 @@
 
     .header-section { text-align: center; position: relative; } 
     
-    .congrats-img { 
-      position: absolute; top: -50px; right: -30px; max-width: 140px; height: auto; 
-      z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(8deg); transition: all 0.3s ease;
-    }
-
-    .music-img { 
-      position: absolute; top: -45px; left: -30px; max-width: 110px; height: auto; 
-      z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(-10deg); transition: all 0.3s ease;
-    }
+    .congrats-img { position: absolute; top: -50px; right: -30px; max-width: 140px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(8deg); transition: all 0.3s ease; }
+    .music-img { position: absolute; top: -45px; left: -30px; max-width: 110px; height: auto; z-index: 10; filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.15)); transform: rotate(-10deg); transition: all 0.3s ease; }
 
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
@@ -82,10 +66,9 @@
     .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 10px; }
     .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
     
-    /* ★ 改版：週數橫幅，與每週格子同寬 ★ */
     .calendar-week-banner {
-      grid-column: span 7; /* 橫跨整行 7 格 */
-      background-color: rgba(214, 194, 169, 0.25); /* 輕柔的奶茶底色 */
+      grid-column: span 7; 
+      background-color: rgba(214, 194, 169, 0.25); 
       color: var(--text-main);
       font-size: 0.85rem;
       font-weight: bold;
@@ -235,14 +218,35 @@
 
   <script>
     const dueYear = 2026; const dueMonth = 11; const dueDateNum = 14;
-    let records = JSON.parse(localStorage.getItem('longlong_records_v2')) || [
-      { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" },
-      { id: 2, date: "2026-04-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
-      { id: 3, date: "2026-05-22", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
-      { id: 4, date: "2026-06-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
-      { id: 5, date: "2026-07-23", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
-      { id: 6, date: "2026-08-21", content: "產檢", cost: 250, note: "", color: "var(--color-2)" }
-    ];
+    
+    // ★ 尋回機制的起點 ★
+    // 抓取原本的兩種抽屜資料
+    let data_v1 = JSON.parse(localStorage.getItem('longlong_records')) || [];
+    let data_v2 = JSON.parse(localStorage.getItem('longlong_records_v2')) || [];
+
+    // 利用 Map 透過 ID 去除重複並合併
+    let mergedMap = new Map();
+    data_v1.forEach(r => mergedMap.set(r.id, r));
+    data_v2.forEach(r => mergedMap.set(r.id, r));
+
+    let records = Array.from(mergedMap.values());
+
+    // 如果合併後完全沒資料（真的是第一次使用），才給予預設值，不再強制覆蓋
+    if (records.length === 0) {
+      records = [
+        { id: 1, date: "2026-04-24", content: "驗孕", cost: 0, note: "這是一切的開始！", color: "var(--color-4)" },
+        { id: 2, date: "2026-04-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+        { id: 3, date: "2026-05-22", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+        { id: 4, date: "2026-06-25", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+        { id: 5, date: "2026-07-23", content: "產檢", cost: 250, note: "", color: "var(--color-2)" },
+        { id: 6, date: "2026-08-21", content: "產檢", cost: 250, note: "", color: "var(--color-2)" }
+      ];
+    }
+
+    // 統一存回標準抽屜，順便清掉 v2，避免未來混淆
+    localStorage.setItem('longlong_records', JSON.stringify(records));
+    localStorage.removeItem('longlong_records_v2');
+
     let currentYear = new Date().getFullYear(); let currentMonth = new Date().getMonth();
     let selectedFormColor = "var(--color-1)"; let selectedModalColor = "var(--color-1)"; let editingId = null;
 
@@ -301,7 +305,7 @@
         if (weekNum > 0) {
           const wBanner = document.createElement('div');
           wBanner.className = 'calendar-week-banner';
-          wBanner.innerText = `W${weekNum}`; // ★ 拿掉圓角小框，改為純文字橫向底色
+          wBanner.innerText = `W${weekNum}`;
           container.appendChild(wBanner);
         }
 
@@ -352,13 +356,25 @@
       records[idx].color = selectedModalColor; if(!records[idx].content) { alert("請輸入今日行程"); return; } saveAndRefresh(); closeModal();
     }
     function deleteFromModal() { if(confirm("確定要刪除嗎？")) { records = records.filter(r => r.id !== editingId); saveAndRefresh(); closeModal(); } }
+    
     function saveRecord() {
       const content = document.getElementById('input-content').value.trim(); const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0);
       const note = document.getElementById('input-note').value.trim(); const date = document.getElementById('input-date').value;
       if(!content) return alert("請輸入內容"); records.push({ id: Date.now(), date, content, cost, note, color: selectedFormColor });
       saveAndRefresh(); document.getElementById('input-content').value = ""; document.getElementById('input-cost').value = ""; document.getElementById('input-note').value = "";
     }
-    function saveAndRefresh() { localStorage.setItem('longlong_records_v2', JSON.stringify(records)); renderCalendar(); renderRecords(); if(document.getElementById('total-summary-row').style.display === 'flex') { const total = records.reduce((sum, r) => sum + r.cost, 0); document.getElementById('grand-total-amount').innerText = total.toLocaleString(); } }
+    
+    function saveAndRefresh() { 
+      // ★ 儲存時統一存入標準金鑰 ★
+      localStorage.setItem('longlong_records', JSON.stringify(records)); 
+      renderCalendar(); 
+      renderRecords(); 
+      if(document.getElementById('total-summary-row').style.display === 'flex') { 
+        const total = records.reduce((sum, r) => sum + r.cost, 0); 
+        document.getElementById('grand-total-amount').innerText = total.toLocaleString(); 
+      } 
+    }
+
     function renderRecords() {
       const container = document.getElementById('records-container'); container.innerHTML = '';
       records.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(r => {
@@ -368,9 +384,11 @@
         </div>`;
       });
     }
+    
     function quickFill(t, c) { document.getElementById('input-content').value = t; selectedFormColor = c; document.querySelectorAll('#form-color-picker .color-opt').forEach(opt => { opt.classList.toggle('active', opt.getAttribute('data-color') === c); }); }
     function changeMonth(n) { currentMonth += n; if(currentMonth<0){currentMonth=11;currentYear--} else if(currentMonth>11){currentMonth=0;currentYear++} renderCalendar(); }
     function highlightSelectedDate() { const v = new Date(document.getElementById('input-date').value); currentYear=v.getFullYear(); currentMonth=v.getMonth(); renderCalendar(); }
+    
     init();
   </script>
 </body>
