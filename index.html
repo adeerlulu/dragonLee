@@ -8,7 +8,8 @@
   <meta name="description" content="李龍龍準備轉生到異世界">
   <meta property="og:title" content="李龍龍の手帳本">
   <meta property="og:description" content="李龍龍準備轉生到異世界">
-  <meta property="og:image" content="web.png"> <meta property="og:type" content="website">
+  <meta property="og:image" content="web.png"> 
+  <meta property="og:type" content="website">
 
   <link rel="icon" href="web.png" type="image/png">
   
@@ -77,9 +78,12 @@
     .countdown-display { font-size: 2.8rem; font-weight: bold; }
     .countdown-display span { font-size: 1.1rem; color: var(--text-light); }
 
+    /* ★ 日曆排版更新：加入 32px 的週數欄位空間 ★ */
     .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-    .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 10px; }
-    .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .calendar-weekdays { display: grid; grid-template-columns: 32px repeat(7, 1fr); text-align: center; font-size: 0.75rem; color: var(--text-light); margin-bottom: 10px; }
+    .calendar-days { display: grid; grid-template-columns: 32px repeat(7, 1fr); gap: 4px; }
+    
+    .calendar-week-num { display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: bold; color: var(--accent-dark); }
     .calendar-day { min-height: 85px; border: 1px solid rgba(226, 211, 193, 0.2); border-radius: 8px; padding: 5px 2px; cursor: pointer; display: flex; flex-direction: column; }
     .calendar-day-num { font-size: 0.85rem; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
     .calendar-day.today .calendar-day-num { background: var(--today-color); color: #fff; border-radius: 50%; }
@@ -142,7 +146,7 @@
           <button onclick="changeMonth(1)" style="border:none; background:none; cursor:pointer;">❯</button>
         </div>
         <div class="calendar-weekdays">
-          <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+          <div></div><div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
         </div>
         <div id="calendar-days" class="calendar-days"></div>
       </section>
@@ -260,21 +264,64 @@
       else { row.style.display = 'flex'; btn.innerText = '\\ 趕快收起來 /'; const total = records.reduce((sum, r) => sum + r.cost, 0); startCounterAnimation('grand-total-amount', total); }
     }
 
+    // ★ 日曆渲染邏輯：加入週數運算 ★
     function renderCalendar() {
-      const container = document.getElementById('calendar-days'); const inputDate = document.getElementById('input-date').value;
-      document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`; container.innerHTML = '';
-      const firstDay = new Date(currentYear, currentMonth, 1).getDay(); const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-      for (let i = 0; i < firstDay; i++) container.innerHTML += `<div class="calendar-day empty" style="visibility:hidden;"></div>`;
-      for (let i = 1; i <= daysInMonth; i++) {
-        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
-        const div = document.createElement('div'); div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
-        if(new Date().toDateString() === new Date(currentYear, currentMonth, i).toDateString()) div.classList.add('today');
-        div.innerHTML = `<div class="calendar-day-num">${i}</div>`;
-        records.filter(r => r.date === dateStr).forEach(r => {
-          const bar = document.createElement('div'); bar.className = 'event-bar'; bar.style.backgroundColor = r.color; bar.innerText = r.content;
-          bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); }; div.appendChild(bar);
-        });
-        div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); }; container.appendChild(div);
+      const container = document.getElementById('calendar-days'); 
+      const inputDate = document.getElementById('input-date').value;
+      document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`; 
+      container.innerHTML = '';
+      
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay(); 
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const totalWeeks = Math.ceil((firstDay + daysInMonth) / 7);
+
+      for (let week = 0; week < totalWeeks; week++) {
+        // 取出這週星期日的日期
+        const sundayDate = new Date(currentYear, currentMonth, 1 - firstDay + (week * 7));
+        
+        // ★ 以 2026-03-15 作為 W1 的基準起算點 (可剛好讓 4/19 當週成為 W6)
+        const anchorDate = new Date(2026, 2, 15);
+        sundayDate.setHours(0,0,0,0);
+        anchorDate.setHours(0,0,0,0);
+        const diffDays = Math.round((sundayDate - anchorDate) / (1000 * 60 * 60 * 24));
+        const weekNum = Math.floor(diffDays / 7) + 1;
+
+        // 渲染左側的 W 週數欄位
+        const wCell = document.createElement('div');
+        wCell.className = 'calendar-week-num';
+        wCell.innerText = weekNum > 0 ? `W${weekNum}` : ''; // 若大於 0 才顯示 W 標籤
+        container.appendChild(wCell);
+
+        // 渲染 7 天的格子
+        for (let i = 0; i < 7; i++) {
+          const dayOffset = week * 7 + i;
+          const dateNum = dayOffset - firstDay + 1;
+
+          if (dateNum <= 0 || dateNum > daysInMonth) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'calendar-day empty';
+            emptyDiv.style.visibility = 'hidden';
+            container.appendChild(emptyDiv);
+          } else {
+            const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dateNum).padStart(2, '0')}`;
+            const div = document.createElement('div'); 
+            div.className = `calendar-day ${dateStr === inputDate ? 'selected' : ''}`;
+            if(new Date().toDateString() === new Date(currentYear, currentMonth, dateNum).toDateString()) div.classList.add('today');
+            
+            div.innerHTML = `<div class="calendar-day-num">${dateNum}</div>`;
+            
+            records.filter(r => r.date === dateStr).forEach(r => {
+              const bar = document.createElement('div'); 
+              bar.className = 'event-bar'; 
+              bar.style.backgroundColor = r.color; 
+              bar.innerText = r.content;
+              bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); }; 
+              div.appendChild(bar);
+            });
+            div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); }; 
+            container.appendChild(div);
+          }
+        }
       }
     }
 
