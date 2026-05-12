@@ -86,12 +86,14 @@
     .week-pill { position: absolute; top: 8px; left: 8px; background: var(--accent-color); color: #fff; font-size: 0.7rem; font-weight: bold; padding: 3px 10px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 2; pointer-events: none; }
 
     /* 表單樣式 */
+    .form-section { position: relative; } 
     .input-group { margin-bottom: 18px; }
     .input-group label { display: block; font-size: 0.95rem; font-weight: bold; margin-bottom: 8px; }
     .form-control { width: 100%; padding: 12px; border: 1px solid #EAE6DF; border-radius: 10px; font-size: 1rem; outline: none; }
+    .color-picker { display: flex; gap: 12px; }
+    .color-opt { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
+    .color-opt.active { border-color: var(--text-main); transform: scale(1.15); }
     .btn-quick { padding: 4px 12px; background: #fff; border: 1.5px solid var(--accent-color); border-radius: 20px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
-    
-    /* 上傳按鈕加入了過場動畫 */
     .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background-color 0.3s ease, transform 0.1s; }
     .btn-submit:active { transform: scale(0.98); }
 
@@ -147,23 +149,6 @@
         <div id="calendar-days" class="calendar-days"></div>
       </section>
 
-      <section class="gallery-section">
-        <h3 style="font-size:1rem; margin-bottom:15px; font-weight:bold;">李龍龍即時觀測</h3>
-        <div id="gallery-carousel" class="gallery-carousel"></div>
-        <div style="margin-top:15px; border-top:1px dashed #E2D3C1; padding-top:15px;">
-          <div style="display:flex; gap:10px;">
-            <select id="upload-week" class="form-control" style="width:100px;">
-              <option value="W1">W1</option><option value="W2">W2</option><option value="W3">W3</option><option value="W4">W4</option><option value="W5">W5</option>
-              <option value="W6" selected>W6</option><option value="W7">W7</option><option value="W8">W8</option><option value="W9">W9</option><option value="W10">W10</option>
-              <option value="W11">W11</option><option value="W12">W12</option><option value="W13">W13</option><option value="W14">W14</option><option value="W15">W15</option>
-              <option value="W20">W20</option><option value="W30">W30</option><option value="W38">W38</option>
-            </select>
-            <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
-            <button id="upload-btn" class="btn-submit" style="margin:0; flex:1; padding:10px;" onclick="document.getElementById('photo-input').click()">上傳照片 (1MB內)</button>
-          </div>
-        </div>
-      </section>
-
       <section class="form-section" id="form-area">
         <img src="music.png" alt="Music" class="music-img" onerror="this.style.display='none'">
         <div class="form-header">
@@ -191,6 +176,23 @@
         <div class="input-group"><label>費用</label><input type="number" id="input-cost" class="form-control" placeholder="$" min="0"></div>
         <div class="input-group"><label>Murmur... (只能唸 30 字)</label><textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="盡情Murmur...."></textarea></div>
         <button class="btn-submit" onclick="saveRecord()">上傳紀錄</button>
+      </section>
+
+      <section class="gallery-section">
+        <h3 style="font-size:1rem; margin-bottom:15px; font-weight:bold;">李龍龍即時觀測</h3>
+        <div id="gallery-carousel" class="gallery-carousel"></div>
+        <div style="margin-top:15px; border-top:1px dashed #E2D3C1; padding-top:15px;">
+          <div style="display:flex; gap:10px;">
+            <select id="upload-week" class="form-control" style="width:100px;">
+              <option value="W1">W1</option><option value="W2">W2</option><option value="W3">W3</option><option value="W4">W4</option><option value="W5">W5</option>
+              <option value="W6" selected>W6</option><option value="W7">W7</option><option value="W8">W8</option><option value="W9">W9</option><option value="W10">W10</option>
+              <option value="W11">W11</option><option value="W12">W12</option><option value="W13">W13</option><option value="W14">W14</option><option value="W15">W15</option>
+              <option value="W20">W20</option><option value="W30">W30</option><option value="W38">W38</option>
+            </select>
+            <input type="file" id="photo-input" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+            <button id="upload-btn" class="btn-submit" style="margin:0; flex:1; padding:10px;" onclick="document.getElementById('photo-input').click()">上傳照片 (1MB內)</button>
+          </div>
+        </div>
       </section>
 
       <h2 style="text-align:center; font-size:1.1rem; margin:20px 0;">將將將！這裡會統計一切！</h2>
@@ -269,13 +271,12 @@
 
     const dueYear = 2026; const dueMonth = 11; const dueDateNum = 14;
     let records = []; 
-    let photosData = []; // 暫存雲端抓下來的照片陣列
+    let photosData = []; 
     let currentYear = new Date().getFullYear(); let currentMonth = new Date().getMonth();
     let selectedFormColor = "var(--color-1)"; let selectedModalColor = "var(--color-1)"; 
     let editingId = null;
     let editingPhotoId = null;
 
-    // 跑馬燈控制變數
     let galleryScrollReq;
     let isHoveringGallery = false;
 
@@ -298,28 +299,21 @@
         renderGallery(photosObj);
       });
 
-      // 監聽相簿區塊，滑鼠或手指碰到時暫停滾動
       const galleryEl = document.getElementById('gallery-carousel');
       galleryEl.addEventListener('mouseenter', () => isHoveringGallery = true);
       galleryEl.addEventListener('mouseleave', () => isHoveringGallery = false);
       galleryEl.addEventListener('touchstart', () => isHoveringGallery = true);
       galleryEl.addEventListener('touchend', () => isHoveringGallery = false);
       
-      // 啟動無限跑馬燈
       autoScrollGallery();
     }
 
-    // ★ 無限跑馬燈邏輯 ★
     function autoScrollGallery() {
       const container = document.getElementById('gallery-carousel');
       if (container && !isHoveringGallery && photosData.length > 0) {
-        container.scrollLeft += 0.8; // 滾動速度
-
-        // 算出原始資料的寬度 (總寬度除以重複次數)
+        container.scrollLeft += 0.8; 
         const repeatCount = photosData.length < 3 ? 4 : 2;
         const singleSetWidth = container.scrollWidth / repeatCount;
-        
-        // 當滾動超過一組原始資料時，無縫接軌切回開頭
         if (container.scrollLeft >= singleSetWidth) {
           container.scrollLeft -= singleSetWidth; 
         }
@@ -334,7 +328,6 @@
       currentMonth = tempMonth; currentYear = tempYear; renderCalendar();
     }
 
-    // ★ 上傳照片與按鈕回饋 ★
     function handlePhotoUpload(input) {
       const file = input.files[0];
       if (!file) return;
@@ -342,23 +335,18 @@
 
       const week = document.getElementById('upload-week').value;
       const reader = new FileReader();
-      const btn = document.getElementById('upload-btn'); // 抓取上傳按鈕
+      const btn = document.getElementById('upload-btn');
 
       reader.onload = function(e) {
         const photoData = { id: Date.now(), week: week, src: e.target.result };
         galleryRef.child(photoData.id).set(photoData).then(() => {
-          
-          // 上傳成功：改變按鈕狀態，不使用跳窗
           btn.innerText = "上傳成功！ ✔";
           btn.style.backgroundColor = "var(--success-color)";
           input.value = ""; 
-          
-          // 2.5秒後恢復原狀
           setTimeout(() => {
             btn.innerText = "上傳照片 (1MB內)";
             btn.style.backgroundColor = "var(--accent-color)";
           }, 2500);
-
         }).catch((error) => alert("上傳失敗：" + error.message));
       };
       reader.readAsDataURL(file);
@@ -380,7 +368,6 @@
         `;
       });
 
-      // 為了達成無限滾動，如果照片很少就複製 4 份，多的話複製 2 份串接
       const repeatCount = photosData.length < 3 ? 4 : 2;
       let finalHtml = '';
       for(let i=0; i<repeatCount; i++) finalHtml += htmlContent;
@@ -388,7 +375,6 @@
       container.innerHTML = finalHtml;
     }
 
-    // ★ 照片編輯相關功能 ★
     function openPhotoModal(id) {
       const p = photosData.find(x => x.id === id);
       if(!p) return;
@@ -408,7 +394,6 @@
       }
     }
 
-    // 行程日曆渲染
     function renderCalendar() {
       const container = document.getElementById('calendar-days'); const inputDate = document.getElementById('input-date').value;
       document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`; container.innerHTML = '';
@@ -462,7 +447,6 @@
       updateTotalDisplay(false); 
     }
 
-    // 行程編輯表單
     function setupColorPickers() {
       document.querySelectorAll('#form-color-picker .color-opt').forEach(opt => {
         opt.onclick = () => { document.querySelectorAll('#form-color-picker .color-opt').forEach(o => o.style.border="none"); opt.style.border="2px solid var(--text-main)"; selectedFormColor = opt.getAttribute('data-color'); };
@@ -492,7 +476,6 @@
       dbRef.set(records); document.getElementById('input-content').value = ""; document.getElementById('input-cost').value = ""; document.getElementById('input-note').value = "";
     }
 
-    // 總額展開與動畫
     function updateTotalDisplay(animate = false) {
       if(document.getElementById('total-summary-row').style.display === 'flex') {
         const total = records.reduce((sum, r) => sum + (r.cost || 0), 0);
