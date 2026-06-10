@@ -47,16 +47,13 @@
     .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
     .container { max-width: 600px; margin: 0 auto; padding: 15px; position: relative; }
 
-    /* --- 新增：登入區塊的樣式 --- */
     .auth-container { position: absolute; top: 15px; right: 15px; z-index: 100; display: flex; align-items: center; gap: 10px; }
     .auth-btn { background: var(--accent-color); color: var(--text-main); border: 2px solid #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.2s; }
     .auth-btn:active { transform: scale(0.95); }
     .user-info { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.8); padding: 4px 10px 4px 4px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); backdrop-filter: blur(4px); }
     .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
     .user-name { font-size: 0.8rem; font-weight: bold; color: var(--text-main); }
-    /* ----------------------------- */
 
-    /* 活潑的彈出動畫 */
     @keyframes bounceInUp {
       0% { opacity: 0; transform: translateY(40px) scale(0.9); }
       50% { opacity: 1; transform: translateY(-10px) scale(1.02); }
@@ -125,8 +122,8 @@
     .btn-submit { width: 100%; padding: 15px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; transition: background-color 0.3s ease, transform 0.1s; }
     .btn-submit:active { transform: scale(0.98); }
 
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92, 84, 77, 0.4); backdrop-filter: blur(4px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
-    .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; animation: modalPop 0.3s ease-out; }
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(92, 84, 77, 0.6); backdrop-filter: blur(6px); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+    .modal-content { background: white; width: 100%; max-width: 400px; border-radius: 20px; padding: 25px; animation: modalPop 0.3s ease-out; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .btn-close { background: none; border: none; font-size: 1.5rem; color: var(--text-light); cursor: pointer; line-height: 1; }
     
@@ -141,20 +138,32 @@
     .record-card { padding: 18px; border-radius: 15px; border-left: 8px solid var(--accent-color); display: flex; justify-content: space-between; margin-bottom: 10px;}
     .edit-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-light); }
 
-    /* ★ 手機版專屬設定 ★ */
     @media (max-width: 600px) {
       .congrats-img { max-width: 90px; top: -35px; right: -10px; }
       .music-img { max-width: 80px; top: -30px; left: -15px; }
       .countdown-display { font-size: 2.2rem; } 
-      .day-add-btn { display: none !important; } /* 在手機版隱藏日曆上的 + 號 */
-      
-      /* 調整手機版登入按鈕位置 */
+      .day-add-btn { display: none !important; } 
       .auth-container { top: 10px; right: 10px; }
-      .user-name { display: none; } /* 手機版空間小，隱藏名字只顯示頭像 */
+      .user-name { display: none; } 
     }
   </style>
 </head>
 <body>
+
+  <!-- 新增：全螢幕置中強制登入視窗 -->
+  <div class="modal-overlay" id="login-modal" style="display: flex; z-index: 2000;">
+    <div class="modal-content" style="text-align: center; padding: 40px 20px;">
+      <img src="logo.png" alt="Logo" style="max-width: 140px; margin-bottom: 20px;" onerror="this.style.display='none'">
+      <h2 style="margin-bottom: 15px; color: var(--text-main); font-size: 1.3rem;">李龍龍の手帳本</h2>
+      <p style="color: var(--text-light); margin-bottom: 25px; line-height: 1.6; font-size: 0.95rem;">
+        歡迎回來！<br>請先登入以解鎖您的專屬紀錄與照片喔！
+      </p>
+      <button class="btn-submit" onclick="toggleLogin()" style="font-size: 1.05rem; padding: 14px 25px; box-shadow: 0 4px 15px rgba(226, 211, 193, 0.4);">
+        登入 Google 帳號
+      </button>
+    </div>
+  </div>
+  <!-- ----------------------------- -->
 
   <div class="page-overlay">
     <div class="container">
@@ -166,6 +175,7 @@
         </div>
         <button id="auth-btn" class="auth-btn" onclick="toggleLogin()">Google 登入</button>
       </div>
+
       <div class="logo-container pop-init delay-1">
         <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'">
       </div>
@@ -308,7 +318,6 @@
     const dbRef = db.ref('longlong_records_v2');
     const galleryRef = db.ref('longlong_gallery');
     
-    // 新增：初始化 Auth 與 Google 登入提供者
     const auth = firebase.auth();
     const provider = new firebase.auth.GoogleAuthProvider();
     let isDataFetched = false;
@@ -324,13 +333,15 @@
     let galleryScrollReq;
     let isHoveringGallery = false;
 
-    // 新增：監聽登入狀態
     auth.onAuthStateChanged((user) => {
       const authBtn = document.getElementById('auth-btn');
       const userInfo = document.getElementById('user-info');
+      const loginModal = document.getElementById('login-modal'); // 取得登入提示框
       
       if (user) {
-        // 已登入
+        // 已登入：隱藏大登入提示框
+        loginModal.style.display = "none";
+
         authBtn.innerText = "登出";
         authBtn.style.backgroundColor = "transparent";
         authBtn.style.borderColor = "var(--text-main)";
@@ -339,18 +350,18 @@
         document.getElementById('user-name').innerText = user.displayName || "使用者";
         document.getElementById('user-avatar').src = user.photoURL || "web.png";
 
-        // 登入後才去抓取資料
         if (!isDataFetched) {
           fetchDatabaseData();
         }
       } else {
-        // 未登入
+        // 未登入：顯示大登入提示框
+        loginModal.style.display = "flex";
+
         authBtn.innerText = "Google 登入";
         authBtn.style.backgroundColor = "var(--accent-color)";
         authBtn.style.borderColor = "#fff";
         userInfo.style.display = "none";
         
-        // 清空畫面上的資料，避免權限報錯
         records = [];
         photosData = [];
         renderCalendar();
@@ -358,13 +369,11 @@
         document.getElementById('gallery-carousel').innerHTML = '';
         isDataFetched = false;
         
-        // 關閉資料庫監聽器
         dbRef.off();
         galleryRef.off();
       }
     });
 
-    // 新增：登入/登出切換功能
     function toggleLogin() {
       if (auth.currentUser) {
         auth.signOut().catch(error => alert("登出失敗：" + error.message));
@@ -373,7 +382,6 @@
       }
     }
 
-    // 新增：將原本的抓資料邏輯獨立出來
     function fetchDatabaseData() {
       dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
@@ -396,8 +404,6 @@
       startCounterAnimation('countdown-timer', diffDays); 
       setupColorPickers();
 
-      // 原本的 dbRef.on 移到 fetchDatabaseData() 裡了
-
       const galleryEl = document.getElementById('gallery-carousel');
       galleryEl.addEventListener('mouseenter', () => isHoveringGallery = true);
       galleryEl.addEventListener('mouseleave', () => isHoveringGallery = false);
@@ -406,7 +412,6 @@
       
       autoScrollGallery();
       setupScrollAnimations(); 
-      // 確保初始畫面會有沒有紀錄的空日曆
       renderCalendar(); 
     }
 
@@ -429,8 +434,7 @@
 
     function jumpToForm(e, dateStr) {
       e.stopPropagation(); 
-      // 新增：防呆，未登入先提醒
-      if (!auth.currentUser) return alert("請先點擊右上角登入 Google 帳號喔！");
+      if (!auth.currentUser) return alert("請先登入 Google 帳號喔！");
       document.getElementById('input-date').value = dateStr;
       renderCalendar(); 
       document.getElementById('form-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -605,7 +609,7 @@
     function deleteFromModal() { if(confirm("確定要刪除嗎？")) { records = records.filter(r => r.id !== editingId); dbRef.set(records); closeModal(); } }
     
     function saveRecord() {
-      if (!auth.currentUser) return alert("要先在右上角登入 Google 才能上傳紀錄喔！");
+      if (!auth.currentUser) return alert("要先登入 Google 才能上傳紀錄喔！");
       const content = document.getElementById('input-content').value.trim(); const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0);
       const note = document.getElementById('input-note').value.trim(); const date = document.getElementById('input-date').value;
       if(!content) return alert("請輸入內容"); records.push({ id: Date.now(), date, content, cost, note, color: selectedFormColor });
