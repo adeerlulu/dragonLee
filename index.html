@@ -15,6 +15,7 @@
   
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
   <style>
     :root {
@@ -45,6 +46,15 @@
 
     .page-overlay { background-color: var(--bg-overlay); min-height: 100vh; width: 100%; padding-bottom: 60px; }
     .container { max-width: 600px; margin: 0 auto; padding: 15px; position: relative; }
+
+    /* --- 新增：登入區塊的樣式 --- */
+    .auth-container { position: absolute; top: 15px; right: 15px; z-index: 100; display: flex; align-items: center; gap: 10px; }
+    .auth-btn { background: var(--accent-color); color: var(--text-main); border: 2px solid #fff; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: 0.2s; }
+    .auth-btn:active { transform: scale(0.95); }
+    .user-info { display: none; align-items: center; gap: 8px; background: rgba(255,255,255,0.8); padding: 4px 10px 4px 4px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); backdrop-filter: blur(4px); }
+    .user-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .user-name { font-size: 0.8rem; font-weight: bold; color: var(--text-main); }
+    /* ----------------------------- */
 
     /* 活潑的彈出動畫 */
     @keyframes bounceInUp {
@@ -137,6 +147,10 @@
       .music-img { max-width: 80px; top: -30px; left: -15px; }
       .countdown-display { font-size: 2.2rem; } 
       .day-add-btn { display: none !important; } /* 在手機版隱藏日曆上的 + 號 */
+      
+      /* 調整手機版登入按鈕位置 */
+      .auth-container { top: 10px; right: 10px; }
+      .user-name { display: none; } /* 手機版空間小，隱藏名字只顯示頭像 */
     }
   </style>
 </head>
@@ -145,6 +159,13 @@
   <div class="page-overlay">
     <div class="container">
       
+      <div class="auth-container pop-init delay-1">
+        <div id="user-info" class="user-info">
+          <img id="user-avatar" class="user-avatar" src="" alt="avatar">
+          <span id="user-name" class="user-name"></span>
+        </div>
+        <button id="auth-btn" class="auth-btn" onclick="toggleLogin()">Google 登入</button>
+      </div>
       <div class="logo-container pop-init delay-1">
         <img src="logo.png" alt="Logo" class="main-logo" onerror="this.style.display='none'">
       </div>
@@ -286,6 +307,11 @@
     const db = firebase.database();
     const dbRef = db.ref('longlong_records_v2');
     const galleryRef = db.ref('longlong_gallery');
+    
+    // 新增：初始化 Auth 與 Google 登入提供者
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    let isDataFetched = false;
 
     const dueYear = 2026; const dueMonth = 11; const dueDateNum = 14;
     let records = []; 
@@ -298,14 +324,57 @@
     let galleryScrollReq;
     let isHoveringGallery = false;
 
-    function init() {
-      const now = new Date(); document.getElementById('input-date').value = now.toISOString().split('T')[0];
-      const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const targetDate = new Date(dueYear, dueMonth, dueDateNum);
-      const diffDays = Math.ceil((targetDate - todayDate) / (1000 * 60 * 60 * 24));
-      startCounterAnimation('countdown-timer', diffDays); 
-      setupColorPickers();
+    // 新增：監聽登入狀態
+    auth.onAuthStateChanged((user) => {
+      const authBtn = document.getElementById('auth-btn');
+      const userInfo = document.getElementById('user-info');
+      
+      if (user) {
+        // 已登入
+        authBtn.innerText = "登出";
+        authBtn.style.backgroundColor = "transparent";
+        authBtn.style.borderColor = "var(--text-main)";
+        
+        userInfo.style.display = "flex";
+        document.getElementById('user-name').innerText = user.displayName || "使用者";
+        document.getElementById('user-avatar').src = user.photoURL || "web.png";
 
+        // 登入後才去抓取資料
+        if (!isDataFetched) {
+          fetchDatabaseData();
+        }
+      } else {
+        // 未登入
+        authBtn.innerText = "Google 登入";
+        authBtn.style.backgroundColor = "var(--accent-color)";
+        authBtn.style.borderColor = "#fff";
+        userInfo.style.display = "none";
+        
+        // 清空畫面上的資料，避免權限報錯
+        records = [];
+        photosData = [];
+        renderCalendar();
+        renderRecords();
+        document.getElementById('gallery-carousel').innerHTML = '';
+        isDataFetched = false;
+        
+        // 關閉資料庫監聽器
+        dbRef.off();
+        galleryRef.off();
+      }
+    });
+
+    // 新增：登入/登出切換功能
+    function toggleLogin() {
+      if (auth.currentUser) {
+        auth.signOut().catch(error => alert("登出失敗：" + error.message));
+      } else {
+        auth.signInWithPopup(provider).catch(error => alert("登入時發生錯誤：" + error.message));
+      }
+    }
+
+    // 新增：將原本的抓資料邏輯獨立出來
+    function fetchDatabaseData() {
       dbRef.on('value', (snapshot) => {
         const data = snapshot.val();
         records = data ? Object.values(data) : [];
@@ -316,6 +385,18 @@
         const photosObj = snapshot.val();
         renderGallery(photosObj);
       });
+      isDataFetched = true;
+    }
+
+    function init() {
+      const now = new Date(); document.getElementById('input-date').value = now.toISOString().split('T')[0];
+      const todayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const targetDate = new Date(dueYear, dueMonth, dueDateNum);
+      const diffDays = Math.ceil((targetDate - todayDate) / (1000 * 60 * 60 * 24));
+      startCounterAnimation('countdown-timer', diffDays); 
+      setupColorPickers();
+
+      // 原本的 dbRef.on 移到 fetchDatabaseData() 裡了
 
       const galleryEl = document.getElementById('gallery-carousel');
       galleryEl.addEventListener('mouseenter', () => isHoveringGallery = true);
@@ -325,6 +406,8 @@
       
       autoScrollGallery();
       setupScrollAnimations(); 
+      // 確保初始畫面會有沒有紀錄的空日曆
+      renderCalendar(); 
     }
 
     function setupScrollAnimations() {
@@ -346,6 +429,8 @@
 
     function jumpToForm(e, dateStr) {
       e.stopPropagation(); 
+      // 新增：防呆，未登入先提醒
+      if (!auth.currentUser) return alert("請先點擊右上角登入 Google 帳號喔！");
       document.getElementById('input-date').value = dateStr;
       renderCalendar(); 
       document.getElementById('form-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -372,6 +457,7 @@
     }
 
     function handlePhotoUpload(input) {
+      if (!auth.currentUser) return alert("請先登入才能上傳照片喔！");
       const file = input.files[0];
       if (!file) return;
       if (file.size > 1024 * 1024) { input.value = ""; return alert("檔案太大囉！請限制在 1MB 以內。"); }
@@ -504,6 +590,7 @@
     }
 
     function openEditModal(id) {
+      if (!auth.currentUser) return alert("請先登入才能編輯喔！");
       const r = records.find(item => item.id === id); if(!r) return; editingId = id;
       document.getElementById('modal-content').value = r.content; document.getElementById('modal-cost').value = r.cost || "";
       document.getElementById('modal-note').value = r.note || ""; selectedModalColor = r.color;
@@ -516,7 +603,9 @@
       records[idx].color = selectedModalColor; if(!records[idx].content) { alert("請輸入今日行程"); return; } dbRef.set(records); closeModal();
     }
     function deleteFromModal() { if(confirm("確定要刪除嗎？")) { records = records.filter(r => r.id !== editingId); dbRef.set(records); closeModal(); } }
+    
     function saveRecord() {
+      if (!auth.currentUser) return alert("要先在右上角登入 Google 才能上傳紀錄喔！");
       const content = document.getElementById('input-content').value.trim(); const cost = Math.max(0, parseInt(document.getElementById('input-cost').value) || 0);
       const note = document.getElementById('input-note').value.trim(); const date = document.getElementById('input-date').value;
       if(!content) return alert("請輸入內容"); records.push({ id: Date.now(), date, content, cost, note, color: selectedFormColor });
@@ -548,6 +637,7 @@
       requestAnimationFrame(step);
     }
     function highlightSelectedDate() { const v = new Date(document.getElementById('input-date').value); currentYear=v.getFullYear(); currentMonth=v.getMonth(); renderCalendar(); }
+    
     init();
   </script>
 </body>
