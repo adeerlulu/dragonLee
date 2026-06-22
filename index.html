@@ -220,6 +220,8 @@
           <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
             <button class="btn-quick" onclick="quickFill('產檢', 'var(--color-2)')">＋ 產檢</button>
             <button class="btn-quick" onclick="quickFill('媽媽教室', 'var(--color-5)')">＋ 媽媽教室</button>
+            <!-- 加上🤮快速按鈕 -->
+            <button class="btn-quick" onclick="quickFill('🤮', 'var(--color-4)')">＋ 🤮</button>
           </div>
         </div>
         <div class="input-group"><label>費用</label><input type="number" id="input-cost" class="form-control" placeholder="$" min="0"></div>
@@ -249,9 +251,16 @@
       
       <div class="total-summary-container scroll-target">
         <button id="toggle-total-btn" class="toggle-total-btn" onclick="toggleTotalSection()">＼按我／</button>
-        <div id="total-summary-row" class="total-summary-row">
-          <span>費用總計</span>
-          <span style="font-size:1.5rem; font-weight:bold;">NT$ <span id="grand-total-amount">0</span></span>
+        <!-- 修改統計區塊架構以支援顯示嘔吐次數 -->
+        <div id="total-summary-row" class="total-summary-row" style="flex-direction: column; align-items: stretch; gap: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span>費用總計</span>
+            <span style="font-size:1.5rem; font-weight:bold;">NT$ <span id="grand-total-amount">0</span></span>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px;">
+            <span>🤮 總次數</span>
+            <span style="font-size:1.5rem; font-weight:bold;"><span id="puke-total-amount">0</span> 次</span>
+          </div>
         </div>
       </div>
     </div>
@@ -336,10 +345,9 @@
     auth.onAuthStateChanged((user) => {
       const authBtn = document.getElementById('auth-btn');
       const userInfo = document.getElementById('user-info');
-      const loginModal = document.getElementById('login-modal'); // 取得登入提示框
+      const loginModal = document.getElementById('login-modal'); 
       
       if (user) {
-        // 已登入：隱藏大登入提示框
         loginModal.style.display = "none";
 
         authBtn.innerText = "登出";
@@ -354,7 +362,6 @@
           fetchDatabaseData();
         }
       } else {
-        // 未登入：顯示大登入提示框
         loginModal.style.display = "flex";
 
         authBtn.innerText = "Google 登入";
@@ -527,6 +534,20 @@
     }
 
     function renderCalendar() {
+      // 在渲染月曆前，先進行依照時間順序的全局嘔吐次數記數計算
+      const sortedRecords = [...records].sort((a,b) => {
+        if (a.date === b.date) return a.id - b.id;
+        return new Date(a.date) - new Date(b.date);
+      });
+      let cumulativePuke = 0;
+      const pukeCounts = {};
+      sortedRecords.forEach(r => {
+        if (r.content.includes('🤮')) {
+          cumulativePuke++;
+          pukeCounts[r.id] = cumulativePuke;
+        }
+      });
+
       const container = document.getElementById('calendar-days'); const inputDate = document.getElementById('input-date').value;
       document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`; container.innerHTML = '';
       const firstDay = new Date(currentYear, currentMonth, 1).getDay(); const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -560,7 +581,9 @@
             `;
             
             records.filter(r => r.date === dateStr).forEach(r => {
-              const bar = document.createElement('div'); bar.className = 'event-bar'; bar.style.backgroundColor = r.color; bar.innerText = r.content;
+              const bar = document.createElement('div'); bar.className = 'event-bar'; bar.style.backgroundColor = r.color; 
+              // 若包含🤮，加上計算好的計數
+              bar.innerText = r.content.includes('🤮') ? `${r.content} (${pukeCounts[r.id]})` : r.content;
               bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); }; div.appendChild(bar);
             });
             div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); }; container.appendChild(div);
@@ -619,8 +642,15 @@
     function updateTotalDisplay(animate = false) {
       if(document.getElementById('total-summary-row').style.display === 'flex') {
         const total = records.reduce((sum, r) => sum + (r.cost || 0), 0);
-        if (animate) startCounterAnimation('grand-total-amount', total);
-        else document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+        // 計算總嘔吐次數
+        const pukeTotal = records.filter(r => r.content.includes('🤮')).length;
+        if (animate) {
+          startCounterAnimation('grand-total-amount', total);
+          startCounterAnimation('puke-total-amount', pukeTotal);
+        } else {
+          document.getElementById('grand-total-amount').innerText = total.toLocaleString();
+          document.getElementById('puke-total-amount').innerText = pukeTotal.toLocaleString();
+        }
       }
     }
     function toggleTotalSection() {
