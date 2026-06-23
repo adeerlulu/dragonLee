@@ -258,7 +258,7 @@
             <span style="font-size:1.5rem; font-weight:bold;">NT$ <span id="grand-total-amount">0</span></span>
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px;">
-            <span>🤮 總次數</span>
+            <span>🤮</span>
             <span style="font-size:1.5rem; font-weight:bold;"><span id="puke-total-amount">0</span> 次</span>
           </div>
         </div>
@@ -534,20 +534,6 @@
     }
 
     function renderCalendar() {
-      // 在渲染月曆前，先進行依照時間順序的全局嘔吐次數記數計算
-      const sortedRecords = [...records].sort((a,b) => {
-        if (a.date === b.date) return a.id - b.id;
-        return new Date(a.date) - new Date(b.date);
-      });
-      let cumulativePuke = 0;
-      const pukeCounts = {};
-      sortedRecords.forEach(r => {
-        if (r.content.includes('🤮')) {
-          cumulativePuke++;
-          pukeCounts[r.id] = cumulativePuke;
-        }
-      });
-
       const container = document.getElementById('calendar-days'); const inputDate = document.getElementById('input-date').value;
       document.getElementById('calendar-title').innerText = `${currentYear}年 ${currentMonth + 1}月`; container.innerHTML = '';
       const firstDay = new Date(currentYear, currentMonth, 1).getDay(); const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -582,8 +568,7 @@
             
             records.filter(r => r.date === dateStr).forEach(r => {
               const bar = document.createElement('div'); bar.className = 'event-bar'; bar.style.backgroundColor = r.color; 
-              // 若包含🤮，加上計算好的計數
-              bar.innerText = r.content.includes('🤮') ? `${r.content} (${pukeCounts[r.id]})` : r.content;
+              bar.innerText = r.content;
               bar.onclick = (e) => { e.stopPropagation(); openEditModal(r.id); }; div.appendChild(bar);
             });
             div.onclick = () => { document.getElementById('input-date').value = dateStr; renderCalendar(); }; container.appendChild(div);
