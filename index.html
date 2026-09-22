@@ -220,12 +220,11 @@
           <div style="display:flex; align-items:center; gap:10px; margin-top:10px;">
             <button class="btn-quick" onclick="quickFill('產檢', 'var(--color-2)')">＋ 產檢</button>
             <button class="btn-quick" onclick="quickFill('媽媽教室', 'var(--color-5)')">＋ 媽媽教室</button>
-            <!-- 加上🤮快速按鈕 -->
             <button class="btn-quick" onclick="quickFill('🤮', 'var(--color-4)')">＋ 🤮</button>
           </div>
         </div>
         <div class="input-group"><label>費用</label><input type="number" id="input-cost" class="form-control" placeholder="$" min="0"></div>
-        <div class="input-group"><label>Murmur... (只能唸 30 字)</label><textarea id="input-note" class="form-control" maxlength="30" rows="2" placeholder="盡情Murmur...."></textarea></div>
+        <div class="input-group"><label>Murmur... (只能唸 50 字)</label><textarea id="input-note" class="form-control" maxlength="50" rows="2" placeholder="盡情Murmur...."></textarea></div>
         <button class="btn-submit" onclick="saveRecord()">上傳紀錄</button>
       </section>
 
@@ -251,7 +250,6 @@
       
       <div class="total-summary-container scroll-target">
         <button id="toggle-total-btn" class="toggle-total-btn" onclick="toggleTotalSection()">＼按我／</button>
-        <!-- 修改統計區塊架構以支援顯示嘔吐次數 -->
         <div id="total-summary-row" class="total-summary-row" style="flex-direction: column; align-items: stretch; gap: 15px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span>費用總計</span>
@@ -281,7 +279,7 @@
       </div>
       <div class="input-group"><label>今日行程</label><input type="text" id="modal-content" class="form-control"></div>
       <div class="input-group"><label>費用</label><input type="number" id="modal-cost" class="form-control" min="0"></div>
-      <div class="input-group"><label>Murmur...</label><textarea id="modal-note" class="form-control" maxlength="30"></textarea></div>
+      <div class="input-group"><label>Murmur...</label><textarea id="modal-note" class="form-control" maxlength="50"></textarea></div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
         <button class="btn-submit" onclick="updateFromModal()">儲存</button>
         <button class="btn-submit" style="background:var(--danger-color);" onclick="deleteFromModal()">刪除</button>
@@ -627,7 +625,6 @@
     function updateTotalDisplay(animate = false) {
       if(document.getElementById('total-summary-row').style.display === 'flex') {
         const total = records.reduce((sum, r) => sum + (r.cost || 0), 0);
-        // 計算總嘔吐次數
         const pukeTotal = records.filter(r => r.content.includes('🤮')).length;
         if (animate) {
           startCounterAnimation('grand-total-amount', total);
